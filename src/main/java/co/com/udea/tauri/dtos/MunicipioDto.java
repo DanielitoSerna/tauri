@@ -7,6 +7,8 @@ public class MunicipioDto {
 	private String municipio;
 	
 	private DepartamentoDto departamentoDto;
+	
+	private Integer codigo;
 
 	public Integer getId() {
 		return id;
@@ -30,6 +32,14 @@ public class MunicipioDto {
 
 	public void setDepartamentoDto(DepartamentoDto departamentoDto) {
 		this.departamentoDto = departamentoDto;
+	}
+
+	public Integer getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Integer codigo) {
+		this.codigo = codigo;
 	}
 
 }

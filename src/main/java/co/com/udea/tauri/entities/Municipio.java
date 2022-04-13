@@ -15,14 +15,17 @@ public class Municipio {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "codigo")
+	@Column(name = "id")
 	private Integer id;
+	
+	@Column(name = "codigo")
+	private Integer codigo;
 	
 	@Column(name = "municipio")
 	private String municipio;
 	
 	@ManyToOne
-	@JoinColumn(name = "departamento", referencedColumnName = "codigo", nullable = false)
+	@JoinColumn(name = "iddepartamento", referencedColumnName = "codigo", nullable = false)
 	private Departamento departamento;
 
 	public Integer getId() {
@@ -31,6 +34,14 @@ public class Municipio {
 
 	public void setId(Integer id) {
 		this.id = id;
+	}
+
+	public Integer getCodigo() {
+		return codigo;
+	}
+
+	public void setCodigo(Integer codigo) {
+		this.codigo = codigo;
 	}
 
 	public String getMunicipio() {
@@ -48,5 +59,5 @@ public class Municipio {
 	public void setDepartamento(Departamento departamento) {
 		this.departamento = departamento;
 	}
-	
+
 }

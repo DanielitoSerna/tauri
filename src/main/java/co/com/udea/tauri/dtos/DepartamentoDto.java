@@ -4,7 +4,7 @@ public class DepartamentoDto {
 	
 	private Integer id;
 	
-	private String departamento;
+	private String nombreDepartamento;
 
 	public Integer getId() {
 		return id;
@@ -14,12 +14,12 @@ public class DepartamentoDto {
 		this.id = id;
 	}
 
-	public String getDepartamento() {
-		return departamento;
+	public String getNombreDepartamento() {
+		return nombreDepartamento;
 	}
 
-	public void setDepartamento(String departamento) {
-		this.departamento = departamento;
+	public void setNombreDepartamento(String nombreDepartamento) {
+		this.nombreDepartamento = nombreDepartamento;
 	}
 	
 }
