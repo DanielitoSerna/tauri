@@ -41,13 +41,13 @@ public class Biblioteca {
 	private Double almidon;
 	
 	@Column(name = "fraccion_a")
-	private Integer fraccionA;
+	private Double fraccionA;
 	
 	@Column(name = "fraccion_b")
-	private Integer fraccionB;
+	private Double fraccionB;
 
 	@Column(name = "fraccion_c")
-	private Integer fraccionC;
+	private Double fraccionC;
 	
 	@Column(name = "digestabilidad_pndr")
 	private Double digestibilidadPndr;
@@ -175,27 +175,27 @@ public class Biblioteca {
 		this.almidon = almidon;
 	}
 
-	public Integer getFraccionA() {
+	public Double getFraccionA() {
 		return fraccionA;
 	}
 
-	public void setFraccionA(Integer fraccionA) {
+	public void setFraccionA(Double fraccionA) {
 		this.fraccionA = fraccionA;
 	}
 
-	public Integer getFraccionB() {
+	public Double getFraccionB() {
 		return fraccionB;
 	}
 
-	public void setFraccionB(Integer fraccionB) {
+	public void setFraccionB(Double fraccionB) {
 		this.fraccionB = fraccionB;
 	}
 
-	public Integer getFraccionC() {
+	public Double getFraccionC() {
 		return fraccionC;
 	}
 
-	public void setFraccionC(Integer fraccionC) {
+	public void setFraccionC(Double fraccionC) {
 		this.fraccionC = fraccionC;
 	}
 

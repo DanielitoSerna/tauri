@@ -19,13 +19,19 @@ public class BibliotecaService implements IBibliotecaService {
 	private BibliotecaRepository bibliotecaRepository;
 
 	@Override
-	public List<BibliotecaDto> listarBibliotecasPorCategoria(String categoria) {
+	public List<BibliotecaDto> listarBibliotecasPorCategoriaUsuario(String categoria, String usuario) {
 		List<Biblioteca> bibliotecas = null;
-		if (categoria != null && !categoria.isEmpty()) {
-			bibliotecas =  bibliotecaRepository.findByCategoria(categoria);
+		if ((categoria != null && !categoria.isEmpty()) && (usuario != null && !usuario.isEmpty()) ) {
+			bibliotecas =  bibliotecaRepository.findByCategoria(categoria, usuario);
 		} else {
 			bibliotecas = bibliotecaRepository.findAll();
 		}
+		return bibliotecas.stream().map(this::convertToDto).collect(Collectors.toList());
+	}
+	
+	@Override
+	public List<BibliotecaDto> listarTodosBiblioteca() {
+		List<Biblioteca> bibliotecas = bibliotecaRepository.findAll();
 		return bibliotecas.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 	

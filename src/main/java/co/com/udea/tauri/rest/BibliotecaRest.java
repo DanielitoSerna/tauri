@@ -22,13 +22,18 @@ public class BibliotecaRest {
 	private BibliotecaService bibliotecaService;
 	
 	@GetMapping(path = "/listarBiblioteca", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> listarBiblioteca(@RequestParam String categoria) {
-		return new ResponseEntity<>(bibliotecaService.listarBibliotecasPorCategoria(categoria), HttpStatus.OK);
+	public ResponseEntity<?> listarBiblioteca(@RequestParam String categoria, @RequestParam String usuario) {
+		return new ResponseEntity<>(bibliotecaService.listarBibliotecasPorCategoriaUsuario(categoria, usuario), HttpStatus.OK);
 	}
 	
 	@PostMapping(path = "/guardarBiblioteca", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> guardarBiblioteca(@RequestBody BibliotecaDto bibliotecaDto) {
 		return null;
+	}
+	
+	@GetMapping(path = "/listarTodosBiblioteca", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> listarTodosBiblioteca() {
+		return new ResponseEntity<>(bibliotecaService.listarTodosBiblioteca(), HttpStatus.OK);
 	}
 	
 }

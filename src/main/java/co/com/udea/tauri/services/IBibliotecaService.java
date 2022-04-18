@@ -6,6 +6,8 @@ import co.com.udea.tauri.dtos.BibliotecaDto;
 
 public interface IBibliotecaService {
 	
-	public List<BibliotecaDto> listarBibliotecasPorCategoria(String categoria);
+	public List<BibliotecaDto> listarBibliotecasPorCategoriaUsuario(String categoria, String usuario);
+	
+	public List<BibliotecaDto> listarTodosBiblioteca();
 
 }
