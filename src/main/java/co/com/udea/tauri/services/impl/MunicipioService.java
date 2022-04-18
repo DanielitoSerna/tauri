@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 
 import co.com.udea.tauri.dtos.DepartamentoDto;
 import co.com.udea.tauri.dtos.MunicipioDto;
-import co.com.udea.tauri.entities.Departamento;
 import co.com.udea.tauri.entities.Municipio;
 import co.com.udea.tauri.repositories.MunicipioRepository;
 import co.com.udea.tauri.services.IMunicipioService;
