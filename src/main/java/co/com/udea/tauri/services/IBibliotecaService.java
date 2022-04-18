@@ -9,5 +9,7 @@ public interface IBibliotecaService {
 	public List<BibliotecaDto> listarBibliotecasPorCategoriaUsuario(String categoria, String usuario);
 	
 	public List<BibliotecaDto> listarTodosBiblioteca();
+	
+	public BibliotecaDto guardarBiblioteca(BibliotecaDto bibliotecaDto);
 
 }

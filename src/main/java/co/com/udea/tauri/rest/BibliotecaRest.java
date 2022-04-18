@@ -28,12 +28,22 @@ public class BibliotecaRest {
 	
 	@PostMapping(path = "/guardarBiblioteca", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> guardarBiblioteca(@RequestBody BibliotecaDto bibliotecaDto) {
-		return null;
+		BibliotecaDto response = new BibliotecaDto();
+		String error = validarParametros(bibliotecaDto);
+		if (!error.isEmpty()) {
+			return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
+		}
+		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
 	@GetMapping(path = "/listarTodosBiblioteca", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> listarTodosBiblioteca() {
 		return new ResponseEntity<>(bibliotecaService.listarTodosBiblioteca(), HttpStatus.OK);
+	}
+	
+	private String validarParametros(BibliotecaDto bibliotecaDto) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

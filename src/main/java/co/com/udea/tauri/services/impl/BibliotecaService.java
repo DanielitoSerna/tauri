@@ -35,6 +35,12 @@ public class BibliotecaService implements IBibliotecaService {
 		return bibliotecas.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 	
+	@Override
+	public BibliotecaDto guardarBiblioteca(BibliotecaDto bibliotecaDto) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 	private BibliotecaDto convertToDto(Biblioteca biblioteca) {
 		ModelMapper modelMapper = new ModelMapper();
 		BibliotecaDto bibliotecaDto = modelMapper.map(biblioteca, BibliotecaDto.class);
