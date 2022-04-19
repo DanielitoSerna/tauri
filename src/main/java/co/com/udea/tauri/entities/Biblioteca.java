@@ -34,8 +34,11 @@ public class Biblioteca {
 	@Column(name = "fda")
 	private Double fda;
 	
-	@Column(name = "pb")
+	@Column(name = "fdn")
 	private Double fdn;
+	
+	@Column(name = "pb")
+	private Double pb;
 	
 	@Column(name = "almidon")
 	private Double almidon;
@@ -341,6 +344,14 @@ public class Biblioteca {
 
 	public void setUsuario(String usuario) {
 		this.usuario = usuario;
+	}
+
+	public Double getPb() {
+		return pb;
+	}
+
+	public void setPb(Double pb) {
+		this.pb = pb;
 	}
 	
 }

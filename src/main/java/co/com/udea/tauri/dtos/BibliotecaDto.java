@@ -10,6 +10,7 @@ public class BibliotecaDto {
 	private Double ed;
 	private Double fda;
 	private Double fdn;
+	private Double pb;
 	private Double almidon;
 	private Integer fraccionA;
 	private Integer fraccionB;
@@ -213,5 +214,11 @@ public class BibliotecaDto {
 	public void setUsuario(String usuario) {
 		this.usuario = usuario;
 	}
-
+	public Double getPb() {
+		return pb;
+	}
+	public void setPb(Double pb) {
+		this.pb = pb;
+	}
+	
 }
