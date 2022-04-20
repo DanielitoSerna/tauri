@@ -37,14 +37,32 @@ public class BibliotecaService implements IBibliotecaService {
 	
 	@Override
 	public BibliotecaDto guardarBiblioteca(BibliotecaDto bibliotecaDto) {
-		// TODO Auto-generated method stub
-		return null;
+		Biblioteca biblioteca = convertToEntity(bibliotecaDto);
+		Biblioteca bibliotecaGuardado = bibliotecaRepository.save(biblioteca);
+		return convertToDto(bibliotecaGuardado);
+	}
+	
+	@Override
+	public List<String> listarCategorias() {
+		return bibliotecaRepository.listarCategorias();
+	}
+	
+	@Override
+	public List<String> listarTipoAlimentos() {
+		return bibliotecaRepository.listarTipoAlimentos();
 	}
 	
 	private BibliotecaDto convertToDto(Biblioteca biblioteca) {
 		ModelMapper modelMapper = new ModelMapper();
 		BibliotecaDto bibliotecaDto = modelMapper.map(biblioteca, BibliotecaDto.class);
 	    return bibliotecaDto;
+	}
+	
+	private Biblioteca convertToEntity(BibliotecaDto bibliotecaDto) {
+		ModelMapper modelMapper = new ModelMapper();
+		Biblioteca biblioteca = modelMapper.map(bibliotecaDto, Biblioteca.class);
+	 
+		return biblioteca;
 	}
 
 }

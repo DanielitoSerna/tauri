@@ -11,5 +11,8 @@ public interface IBibliotecaService {
 	public List<BibliotecaDto> listarTodosBiblioteca();
 	
 	public BibliotecaDto guardarBiblioteca(BibliotecaDto bibliotecaDto);
-
+	
+	public List<String> listarCategorias();
+	
+	public List<String> listarTipoAlimentos();
 }

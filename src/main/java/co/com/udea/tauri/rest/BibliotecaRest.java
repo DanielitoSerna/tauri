@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +17,7 @@ import co.com.udea.tauri.services.impl.BibliotecaService;
 
 @RestController
 @RequestMapping("api")
+@CrossOrigin(origins = "*")
 public class BibliotecaRest {
 	
 	@Autowired
@@ -29,10 +31,7 @@ public class BibliotecaRest {
 	@PostMapping(path = "/guardarBiblioteca", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> guardarBiblioteca(@RequestBody BibliotecaDto bibliotecaDto) {
 		BibliotecaDto response = new BibliotecaDto();
-		String error = validarParametros(bibliotecaDto);
-		if (!error.isEmpty()) {
-			return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
-		}
+		response = bibliotecaService.guardarBiblioteca(bibliotecaDto);
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
 	
@@ -41,9 +40,14 @@ public class BibliotecaRest {
 		return new ResponseEntity<>(bibliotecaService.listarTodosBiblioteca(), HttpStatus.OK);
 	}
 	
-	private String validarParametros(BibliotecaDto bibliotecaDto) {
-		// TODO Auto-generated method stub
-		return null;
+	@GetMapping(path = "/listarCategorias", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> listarCategorias() {
+		return new ResponseEntity<>(bibliotecaService.listarCategorias(), HttpStatus.OK);
+	}
+	
+	@GetMapping(path = "/listarTipoAlimentos", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> listarTipoAlimentos() {
+		return new ResponseEntity<>(bibliotecaService.listarTipoAlimentos(), HttpStatus.OK);
 	}
 	
 }
