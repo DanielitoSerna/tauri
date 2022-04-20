@@ -50,4 +50,8 @@ public class BibliotecaRest {
 		return new ResponseEntity<>(bibliotecaService.listarTipoAlimentos(), HttpStatus.OK);
 	}
 	
+	@PostMapping(path = "/eliminarBiblioteca", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> eliminarBiblioteca(@RequestParam Integer id) {
+		return new ResponseEntity<>(bibliotecaService.eliminarBiblioteca(id), HttpStatus.OK);
+	}
 }

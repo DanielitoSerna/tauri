@@ -15,4 +15,6 @@ public interface IBibliotecaService {
 	public List<String> listarCategorias();
 	
 	public List<String> listarTipoAlimentos();
+	
+	public BibliotecaDto eliminarBiblioteca(Integer id);
 }

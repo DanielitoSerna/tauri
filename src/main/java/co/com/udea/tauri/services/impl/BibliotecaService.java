@@ -52,6 +52,18 @@ public class BibliotecaService implements IBibliotecaService {
 		return bibliotecaRepository.listarTipoAlimentos();
 	}
 	
+	@Override
+	public BibliotecaDto eliminarBiblioteca(Integer id) {
+		Biblioteca biblioteca = null;
+		try {
+			biblioteca = bibliotecaRepository.findById(id).get();
+			bibliotecaRepository.delete(biblioteca);
+		} catch (Exception e) {
+			return null;
+		}
+		return convertToDto(biblioteca);
+	}
+	
 	private BibliotecaDto convertToDto(Biblioteca biblioteca) {
 		ModelMapper modelMapper = new ModelMapper();
 		BibliotecaDto bibliotecaDto = modelMapper.map(biblioteca, BibliotecaDto.class);
