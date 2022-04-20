@@ -11,6 +11,6 @@ import co.com.udea.tauri.entities.Municipio;
 @Repository
 public interface MunicipioRepository extends JpaRepository<Municipio, Integer>{
 
-	@Query ("SELECT m FROM Municipio m WHERE m.departamento.id = :departamento")
+	@Query ("SELECT m FROM Municipio m WHERE m.departamento.id = :departamento order by m.municipio")
 	public List<Municipio> findByIdDepartamento(Integer departamento);
 }

@@ -9,10 +9,10 @@ import co.com.udea.tauri.entities.Biblioteca;
 
 public interface BibliotecaRepository extends JpaRepository<Biblioteca, Integer> {
 	
-	@Query("SELECT b FROM Biblioteca b WHERE b.categoria = :categoria AND (b.usuario = :usuario or b.usuario = 'SISTEMA')")
-	public List<Biblioteca> findByCategoria(String categoria, String usuario);
+	@Query("SELECT b FROM Biblioteca b WHERE b.usuario = :usuario or b.usuario = 'SISTEMA' order by b.nombre")
+	public List<Biblioteca> findByUsuario(String usuario);
 	
-	@Query("SELECT DISTINCT b.categoria FROM Biblioteca b")
+	@Query("SELECT DISTINCT b.categoria FROM Biblioteca b order by b.categoria")
 	public List<String> listarCategorias();
 	
 	@Query("SELECT DISTINCT b.tipo FROM Biblioteca b")

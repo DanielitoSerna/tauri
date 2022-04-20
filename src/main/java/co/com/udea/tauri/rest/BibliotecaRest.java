@@ -24,8 +24,8 @@ public class BibliotecaRest {
 	private BibliotecaService bibliotecaService;
 	
 	@GetMapping(path = "/listarBiblioteca", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> listarBiblioteca(@RequestParam String categoria, @RequestParam String usuario) {
-		return new ResponseEntity<>(bibliotecaService.listarBibliotecasPorCategoriaUsuario(categoria, usuario), HttpStatus.OK);
+	public ResponseEntity<?> listarBiblioteca(@RequestParam String usuario) {
+		return new ResponseEntity<>(bibliotecaService.listarBibliotecasPorCategoriaUsuario(usuario), HttpStatus.OK);
 	}
 	
 	@PostMapping(path = "/guardarBiblioteca", produces = MediaType.APPLICATION_JSON_VALUE)

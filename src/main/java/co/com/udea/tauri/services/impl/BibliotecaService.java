@@ -19,10 +19,10 @@ public class BibliotecaService implements IBibliotecaService {
 	private BibliotecaRepository bibliotecaRepository;
 
 	@Override
-	public List<BibliotecaDto> listarBibliotecasPorCategoriaUsuario(String categoria, String usuario) {
+	public List<BibliotecaDto> listarBibliotecasPorCategoriaUsuario(String usuario) {
 		List<Biblioteca> bibliotecas = null;
-		if ((categoria != null && !categoria.isEmpty()) && (usuario != null && !usuario.isEmpty()) ) {
-			bibliotecas =  bibliotecaRepository.findByCategoria(categoria, usuario);
+		if ((usuario != null && !usuario.isEmpty()) ) {
+			bibliotecas =  bibliotecaRepository.findByUsuario(usuario);
 		} else {
 			bibliotecas = bibliotecaRepository.findAll();
 		}
