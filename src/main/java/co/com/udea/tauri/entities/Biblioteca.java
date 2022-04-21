@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
@@ -12,7 +13,8 @@ import javax.persistence.Table;
 public class Biblioteca {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@SequenceGenerator(name="biblioteca_pkey",sequenceName="taurischema.biblioteca_id_seq")
+	@GeneratedValue(strategy = GenerationType.AUTO, generator = "biblioteca_pkey")
 	@Column(name = "id")
 	private Integer id;
 	

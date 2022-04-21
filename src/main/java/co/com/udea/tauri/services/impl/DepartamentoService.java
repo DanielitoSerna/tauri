@@ -20,7 +20,7 @@ public class DepartamentoService implements IDepartamentoService{
 	
 	@Override
 	public List<DepartamentoDto> listarDepartamento() {
-		List<Departamento> departamentos = departamentoRepository.findAll();
+		List<Departamento> departamentos = departamentoRepository.findAllByOrderByNombreDepartamentoAsc();
 		return departamentos.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 	
