@@ -13,9 +13,9 @@ import javax.persistence.Table;
 public class Biblioteca {
 	
 	@Id
-	@SequenceGenerator(name="biblioteca_pkey",sequenceName="taurischema.biblioteca_id_seq")
-	@GeneratedValue(strategy = GenerationType.AUTO, generator = "biblioteca_pkey")
-	@Column(name = "id")
+	@SequenceGenerator(name="biblioteca_id_seq",sequenceName="taurischema.biblioteca_id_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "biblioteca_id_seq")
+	@Column(name = "id", updatable=false)
 	private Integer id;
 	
 	@Column(name = "nombre")
