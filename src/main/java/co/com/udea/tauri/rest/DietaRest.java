@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,5 +33,10 @@ public class DietaRest {
 	@PostMapping(path = "/eliminarDieta", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> eliminarDieta(@RequestParam Integer idEntrada) {
 		return new ResponseEntity<>(dietaService.eliminarDieta(idEntrada), HttpStatus.OK);
+	}
+	
+	@GetMapping(path = "/dietas", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> listarDieta(@RequestParam Integer idEntrada) {
+		return new ResponseEntity<>(dietaService.listarDieta(idEntrada), HttpStatus.OK);
 	}
 }

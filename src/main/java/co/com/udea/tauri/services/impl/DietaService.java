@@ -1,6 +1,7 @@
 package co.com.udea.tauri.services.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +48,12 @@ public class DietaService implements IDietaService{
 			mensaje = "error al eliminar la dieta";
 		}
 		return mensaje;
+	}
+	
+	@Override
+	public List<DietaDto> listarDieta(Integer idEntrada) {
+		List<Dieta> dietas = dietaRepository.findDietaByIdEntrada(idEntrada);
+		return dietas.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 	
 	private DietaDto convertToDto(Dieta dieta) {
