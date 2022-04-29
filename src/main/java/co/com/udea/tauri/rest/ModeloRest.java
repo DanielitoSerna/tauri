@@ -18,13 +18,15 @@ import co.com.udea.tauri.services.impl.ModeloService;
 @RequestMapping("api")
 @CrossOrigin(origins = "*")
 public class ModeloRest {
-	
+
 	@Autowired
 	private ModeloService modeloService;
-	
+
 	@PostMapping(path = "/retornarModelo", produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> retornarModelo(@RequestBody DatoCalculoDto datoCalculoDto) {
-		return new ResponseEntity<>(modeloService.calcularModelo(datoCalculoDto.getEntradaDto(), datoCalculoDto.getDietaDtos()), HttpStatus.OK);
+		return new ResponseEntity<>(
+				modeloService.calcularModelo(datoCalculoDto.getEntradaDto(), datoCalculoDto.getDietaDtos()),
+				HttpStatus.OK);
 	}
 
 }
