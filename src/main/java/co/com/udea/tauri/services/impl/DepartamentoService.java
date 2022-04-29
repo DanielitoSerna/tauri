@@ -13,7 +13,7 @@ import co.com.udea.tauri.repositories.DepartamentoRepository;
 import co.com.udea.tauri.services.IDepartamentoService;
 
 @Service
-public class DepartamentoService implements IDepartamentoService{
+public class DepartamentoService implements IDepartamentoService {
 	
 	@Autowired
 	private DepartamentoRepository departamentoRepository;
