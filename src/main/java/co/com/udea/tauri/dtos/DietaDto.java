@@ -13,6 +13,14 @@ public class DietaDto {
 	private Double cantidadOfrecido;
 	
 	private Double precio;
+	
+	private Double cmsActual;
+	
+	private Double cmsForraje;
+	
+	private Double cmsConcentrado;
+	
+	private Double totalPrecio;
 
 	public Integer getId() {
 		return id;
@@ -60,6 +68,38 @@ public class DietaDto {
 
 	public void setPrecio(Double precio) {
 		this.precio = precio;
-	}	
-	
+	}
+
+	public Double getCmsActual() {
+		return cmsActual;
+	}
+
+	public void setCmsActual(Double cmsActual) {
+		this.cmsActual = cmsActual;
+	}
+
+	public Double getCmsForraje() {
+		return cmsForraje;
+	}
+
+	public void setCmsForraje(Double cmsForraje) {
+		this.cmsForraje = cmsForraje;
+	}
+
+	public Double getCmsConcentrado() {
+		return cmsConcentrado;
+	}
+
+	public void setCmsConcentrado(Double cmsConcentrado) {
+		this.cmsConcentrado = cmsConcentrado;
+	}
+
+	public Double getTotalPrecio() {
+		return totalPrecio;
+	}
+
+	public void setTotalPrecio(Double totalPrecio) {
+		this.totalPrecio = totalPrecio;
+	}
+
 }

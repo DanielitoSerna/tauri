@@ -60,6 +60,9 @@ public class Entrada {
 	@Column(name = "intervalo_partos")
 	private Integer intervaloParto;
 	
+	@Column(name = "produccion_leche")
+	private Double produccionLeche;
+	
 	@Column(name = "grasa")
 	private Double grasa;
 	
@@ -192,6 +195,14 @@ public class Entrada {
 
 	public void setIntervaloParto(Integer intervaloParto) {
 		this.intervaloParto = intervaloParto;
+	}
+
+	public Double getProduccionLeche() {
+		return produccionLeche;
+	}
+
+	public void setProduccionLeche(Double produccionLeche) {
+		this.produccionLeche = produccionLeche;
 	}
 
 	public Double getGrasa() {
