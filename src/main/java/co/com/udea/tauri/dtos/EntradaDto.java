@@ -2,8 +2,6 @@ package co.com.udea.tauri.dtos;
 
 import java.util.Date;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 public class EntradaDto {
 	
 	private Integer id;
@@ -52,10 +50,8 @@ public class EntradaDto {
 	
 	private Date fechaCreacion;
 	
-	@JsonIgnore
 	private DepartamentoDto departamento;
 	
-	@JsonIgnore
 	private MunicipioDto municipio;
 
 	public Integer getId() {
