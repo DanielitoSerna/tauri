@@ -32,6 +32,8 @@ public class EntradaDto {
 	
 	private Integer intervaloParto;
 	
+	private Double produccionLeche;
+	
 	private Double grasa;
 	
 	private Double proteinaCruda;
@@ -160,6 +162,14 @@ public class EntradaDto {
 
 	public void setIntervaloParto(Integer intervaloParto) {
 		this.intervaloParto = intervaloParto;
+	}
+
+	public Double getProduccionLeche() {
+		return produccionLeche;
+	}
+
+	public void setProduccionLeche(Double produccionLeche) {
+		this.produccionLeche = produccionLeche;
 	}
 
 	public Double getGrasa() {
