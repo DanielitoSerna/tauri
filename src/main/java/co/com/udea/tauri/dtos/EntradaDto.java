@@ -55,6 +55,8 @@ public class EntradaDto {
 	private DepartamentoDto departamento;
 	
 	private MunicipioDto municipio;
+	
+	private Double gananciaPeso;
 
 	public Integer getId() {
 		return id;
@@ -262,6 +264,14 @@ public class EntradaDto {
 
 	public void setMunicipio(MunicipioDto municipio) {
 		this.municipio = municipio;
+	}
+
+	public Double getGananciaPeso() {
+		return gananciaPeso;
+	}
+
+	public void setGananciaPeso(Double gananciaPeso) {
+		this.gananciaPeso = gananciaPeso;
 	}
 
 }
