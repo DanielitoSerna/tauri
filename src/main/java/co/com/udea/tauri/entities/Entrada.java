@@ -92,6 +92,9 @@ public class Entrada {
 	
 	@Column(name = "fecha_creacion")
 	private Date fechaCreacion;
+	
+	@Column(name = "ganancia_peso")
+	private Double gananciaPeso;
 
 	public Integer getId() {
 		return id;
@@ -283,6 +286,14 @@ public class Entrada {
 
 	public void setFechaCreacion(Date fechaCreacion) {
 		this.fechaCreacion = fechaCreacion;
+	}
+
+	public Double getGananciaPeso() {
+		return gananciaPeso;
+	}
+
+	public void setGananciaPeso(Double gananciaPeso) {
+		this.gananciaPeso = gananciaPeso;
 	}
 
 }

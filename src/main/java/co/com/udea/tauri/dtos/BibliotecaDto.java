@@ -32,6 +32,7 @@ public class BibliotecaDto {
 	private Double coeficienteAbsorcionNa;
 	private Double coeficienteAbsorcionCl;
 	private Double coeficienteAbsorcionK;
+	private Double coeficienteAbsorcionMg;
 	private String usuario;
 	
 	public Integer getId() {
@@ -219,6 +220,12 @@ public class BibliotecaDto {
 	}
 	public void setPb(Double pb) {
 		this.pb = pb;
+	}
+	public Double getCoeficienteAbsorcionMg() {
+		return coeficienteAbsorcionMg;
+	}
+	public void setCoeficienteAbsorcionMg(Double coeficienteAbsorcionMg) {
+		this.coeficienteAbsorcionMg = coeficienteAbsorcionMg;
 	}
 	
 }

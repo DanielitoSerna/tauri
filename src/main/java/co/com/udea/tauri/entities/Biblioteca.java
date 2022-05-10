@@ -105,6 +105,9 @@ public class Biblioteca {
 	@Column(name = "coeficiente_absorcion_k")
 	private Double coeficienteAbsorcionK;
 	
+	@Column(name = "coeficiente_absorcion_mg")
+	private Double coeficienteAbsorcionMg;
+	
 	@Column(name = "usuario")
 	private String usuario;
 
@@ -354,6 +357,14 @@ public class Biblioteca {
 
 	public void setPb(Double pb) {
 		this.pb = pb;
+	}
+
+	public Double getCoeficienteAbsorcionMg() {
+		return coeficienteAbsorcionMg;
+	}
+
+	public void setCoeficienteAbsorcionMg(Double coeficienteAbsorcionMg) {
+		this.coeficienteAbsorcionMg = coeficienteAbsorcionMg;
 	}
 	
 }
