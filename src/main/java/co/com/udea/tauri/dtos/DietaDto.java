@@ -21,6 +21,8 @@ public class DietaDto {
 	private Double cmsConcentrado;
 	
 	private Double totalPrecio;
+	
+	private BibliotecaDto biblioteca;
 
 	public Integer getId() {
 		return id;
@@ -102,4 +104,11 @@ public class DietaDto {
 		this.totalPrecio = totalPrecio;
 	}
 
+	public BibliotecaDto getBiblioteca() {
+		return biblioteca;
+	}
+
+	public void setBiblioteca(BibliotecaDto biblioteca) {
+		this.biblioteca = biblioteca;
+	}
 }

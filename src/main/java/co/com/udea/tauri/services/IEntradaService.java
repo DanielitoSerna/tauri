@@ -9,5 +9,7 @@ public interface IEntradaService {
 	public EntradaDto guardarEntrada(EntradaDto entradaDto);
 	
 	public List<EntradaDto> listarEntradas(String usuario);
+	
+	public EntradaDto getEntrada(int idEntrada);
 
 }

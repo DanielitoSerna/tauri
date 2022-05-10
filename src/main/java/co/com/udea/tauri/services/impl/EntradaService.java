@@ -37,6 +37,12 @@ public class EntradaService implements IEntradaService{
 	}
 	
 	@Override
+	public EntradaDto getEntrada(int idEntrada) {
+		return convertToDto(entradaRepository.findById(idEntrada).get());
+	}
+	
+	
+	@Override
 	public List<EntradaDto> listarEntradas(String usuario) {
 		List<Entrada> entradas = entradaRepository.findByUsuario(usuario);
 		return entradas.stream().map(this::convertToDto).collect(Collectors.toList());
