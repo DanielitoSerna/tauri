@@ -152,6 +152,9 @@ public class ModeloService implements IModeloService {
 			sumaRdp = sumaRdp + rdp;
 		}
 
+		Double neMaintEnergy = 0.0;
+		Double pregnancyCalcium = 0.0;
+		Double pregnancyPhosphorous = 0.0;
 		if (entradaDto.getDiasPrenez() < 190) {
 			scurfRequirement = formatearDecimales(
 					CONSTANT_SCURF_REQUIREMENT
@@ -162,6 +165,7 @@ public class ModeloService implements IModeloService {
 			if (new Double(0).equals(entradaDto.getDistancia()) || entradaDto.getDistancia() == null) {
 				neMaint = formatearDecimales(((Math.pow(entradaDto.getPesoCorporal(), 0.75) * 0.08)),
 						CANTIDAD_DECIMALES);
+
 			} else {
 				if (entradaDto.getTipografia() != null && entradaDto.getTipografia().equals("Plana")) {
 					neMaint = formatearDecimales(((Math.pow(entradaDto.getPesoCorporal(), 0.75) * 0.08))
@@ -180,6 +184,9 @@ public class ModeloService implements IModeloService {
 							CANTIDAD_DECIMALES);
 				}
 			}
+			neMaintEnergy = neMaint;
+			pregnancyCalcium = 0.0;
+			pregnancyPhosphorous = 0.0;
 		} else {
 			scurfRequirement = formatearDecimales(
 					CONSTANT_SCURF_REQUIREMENT
@@ -207,6 +214,16 @@ public class ModeloService implements IModeloService {
 							CANTIDAD_DECIMALES);
 				}
 			}
+			neMaintEnergy = neMaint;
+			pregnancyCalcium = formatearDecimales(
+					0.02456 * Math.exp((0.05581 - (0.00007 * entradaDto.getDiasPrenez())) * entradaDto.getDiasPrenez())
+							- 0.02456 * Math.exp((0.05581 - (0.00007 * (entradaDto.getDiasPrenez() - 1)))
+									* (entradaDto.getDiasPrenez() - 1)),
+					CANTIDAD_DECIMALES);
+			pregnancyPhosphorous = 0.02743
+					* Math.exp(((0.05527 - (0.000075 * entradaDto.getDiasPrenez())) * entradaDto.getDiasPrenez()))
+					- 0.02743 * Math.exp(((0.05527 - (0.000075 * (entradaDto.getDiasPrenez() - 1)))
+							* (entradaDto.getDiasPrenez() - 1)));
 		}
 
 		Double dmiMaintenanceLevel = neMaint / nel;
@@ -228,41 +245,115 @@ public class ModeloService implements IModeloService {
 
 		Double metabolicFecalProteinReq = formatearDecimales(
 				(cmsActual * 1000 * 0.03 - (0.5 * ((mpBact / 0.8) - mpBact))), CANTIDAD_DECIMALES);
-		Double mpEndoungeosRequirement = formatearDecimales((11.8*cmsActual*0.4)/0.67, CANTIDAD_DECIMALES);
-		
-		Double mpMaint = formatearDecimales(scurfRequirement + urinaryRequirement + metabolicFecalProteinReq + mpEndoungeosRequirement, CANTIDAD_DECIMALES);
-		
-		Double mpLact = formatearDecimales((yprotn/0.67)*1000, CANTIDAD_DECIMALES);
-		
-		Double mpPreg = formatearDecimales((((0.69*entradaDto.getDiasPrenez())-69.2)*(cbw/45))/0.33, CANTIDAD_DECIMALES);
-		
-		Double meanTargetSbw = formatearDecimales(entradaDto.getPesoCorporal()*0.96, CANTIDAD_DECIMALES);
+		Double mpEndoungeosRequirement = formatearDecimales((11.8 * cmsActual * 0.4) / 0.67, CANTIDAD_DECIMALES);
+
+		Double mpMaint = formatearDecimales(
+				scurfRequirement + urinaryRequirement + metabolicFecalProteinReq + mpEndoungeosRequirement,
+				CANTIDAD_DECIMALES);
+
+		Double mpLact = formatearDecimales((yprotn / 0.67) * 1000, CANTIDAD_DECIMALES);
+
+		Double mpPreg = formatearDecimales((((0.69 * entradaDto.getDiasPrenez()) - 69.2) * (cbw / 45)) / 0.33,
+				CANTIDAD_DECIMALES);
+
+		Double meanTargetSbw = formatearDecimales(entradaDto.getPesoCorporal() * 0.96, CANTIDAD_DECIMALES);
 		Double eqsbw = 0.0;
+		Double lactationCalcium = 0.0;
 		if ("Jersey".equals(entradaDto.getRaza())) {
-			eqsbw = formatearDecimales(meanTargetSbw*(478/(MW_JERSEY*0.96)), CANTIDAD_DECIMALES);
+			eqsbw = formatearDecimales(meanTargetSbw * (478 / (MW_JERSEY * 0.96)), CANTIDAD_DECIMALES);
+			lactationCalcium = formatearDecimales(1.45 * milkProd, CANTIDAD_DECIMALES);
 		} else {
-			eqsbw = formatearDecimales(meanTargetSbw*(478/(MW_HOLSTEIN*0.96)), CANTIDAD_DECIMALES);
+			eqsbw = formatearDecimales(meanTargetSbw * (478 / (MW_HOLSTEIN * 0.96)), CANTIDAD_DECIMALES);
+			lactationCalcium = formatearDecimales(1.22 * milkProd, CANTIDAD_DECIMALES);
 		}
-		
-		Double eqebw = formatearDecimales(eqsbw*0.891, CANTIDAD_DECIMALES);
+
+		Double eqebw = formatearDecimales(eqsbw * 0.891, CANTIDAD_DECIMALES);
 		Double eqebeExp = formatearDecimales(Math.pow(eqebw, 0.75), CANTIDAD_DECIMALES);
-		Double swg = formatearDecimales( entradaDto.getGananciaPeso()*0.96, CANTIDAD_DECIMALES);
-		Double eqebg = formatearDecimales(swg*0.956, CANTIDAD_DECIMALES);
+		Double swg = formatearDecimales(entradaDto.getGananciaPeso() * 0.96, CANTIDAD_DECIMALES);
+		Double eqebg = formatearDecimales(swg * 0.956, CANTIDAD_DECIMALES);
 		Double eqebgExp = formatearDecimales(Math.pow(eqebg, 1.097), CANTIDAD_DECIMALES);
-		Double re = formatearDecimales(0.0635*eqebeExp*eqebgExp, CANTIDAD_DECIMALES);
-		
-		Double npg = formatearDecimales(swg*(268-(29.4*(re/swg))), CANTIDAD_DECIMALES);
-		Double effmpNpg = formatearDecimales((83.4-(0.114*eqsbw))/100, CANTIDAD_DECIMALES);
-		
+		Double re = formatearDecimales(0.0635 * eqebeExp * eqebgExp, CANTIDAD_DECIMALES);
+
+		Double npg = formatearDecimales(swg * (268 - (29.4 * (re / swg))), CANTIDAD_DECIMALES);
+		Double effmpNpg = formatearDecimales((83.4 - (0.114 * eqsbw)) / 100, CANTIDAD_DECIMALES);
+
 		Double mpGrowth = 0.0;
-		if (entradaDto.getNumeroParto()<=2) {
+		Double growht = 0.0;
+		Double fecalPhosphorous = 0.0;
+		if (entradaDto.getNumeroParto() <= 2) {
 			mpGrowth = formatearDecimales(npg / effmpNpg, CANTIDAD_DECIMALES);
+			growht = re;
+			fecalPhosphorous = formatearDecimales(0.8 * cmsActual, CANTIDAD_DECIMALES);
 		} else {
 			mpGrowth = 0.0;
+			growht = 0.0;
+			fecalPhosphorous = formatearDecimales(1 * cmsActual, CANTIDAD_DECIMALES);
 		}
-		
+
 		Double totalMpRequeriment = formatearDecimales(mpMaint + mpLact + mpPreg + mpGrowth, CANTIDAD_DECIMALES);
-		
+
+		Double yEn = formatearDecimales(fcm * milkProd, CANTIDAD_DECIMALES);
+
+		Double nePreg = formatearDecimales(
+				0.64 * ((((2 * 0.00159 * entradaDto.getDiasPrenez()) - 0.0352) * (cbw / 45)) / 0.14),
+				CANTIDAD_DECIMALES);
+
+		Double totalNeRequirement = formatearDecimales(neMaintEnergy + yEn + nePreg + growht, CANTIDAD_DECIMALES);
+
+		Double fecalCalcium = 0.0;
+		Double lactationPhosphorous = 0.0;
+		if (entradaDto.getDiasLeche() > 0) {
+			fecalCalcium = formatearDecimales(3.1 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
+			lactationPhosphorous = 0.0;
+		} else {
+			if (entradaDto.getDiasLeche() == 0) {
+				fecalCalcium = formatearDecimales(1.54 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
+			}
+			lactationPhosphorous = formatearDecimales(0.9 * milkProd, CANTIDAD_DECIMALES);
+		}
+
+		Double urinaryCalcium = formatearDecimales(0.08 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
+
+		Double growthCalcium = 0.0;
+		if (entradaDto.getGananciaPeso() > 0) {
+			if ("Jersey".equals(entradaDto.getRaza())) {
+				growthCalcium = formatearDecimales(
+						(9.83 * (Math.pow(MW_JERSEY, 0.22)) * (Math.pow(entradaDto.getPesoCorporal(), -0.22)))
+								* (entradaDto.getGananciaPeso()),
+						CANTIDAD_DECIMALES);
+			} else {
+				growthCalcium = formatearDecimales(
+						(9.83 * (Math.pow(MW_HOLSTEIN, 0.22)) * (Math.pow(entradaDto.getPesoCorporal(), -0.22)))
+								* (entradaDto.getGananciaPeso()),
+						CANTIDAD_DECIMALES);
+			}
+		} else {
+			if (entradaDto.getGananciaPeso() == 0) {
+				growthCalcium = 0.0;
+			}
+		}
+
+		Double caRequirement = formatearDecimales(
+				fecalCalcium + urinaryCalcium + pregnancyCalcium + lactationCalcium + growthCalcium,
+				CANTIDAD_DECIMALES);
+
+		Double urinaryPhosphorous = formatearDecimales(0.002 * entradaDto.getPesoCorporal(), CANTIDAD_DECIMALES);
+
+		Double growthPhosphorous = 0.0;
+		if ("Jersey".equals(entradaDto.getRaza())) {
+			growthPhosphorous = (1.2
+					+ (4.635 * Math.pow(MW_JERSEY, 0.22)) * Math.pow(entradaDto.getPesoCorporal(), -0.22))
+					* (entradaDto.getGananciaPeso());
+		} else {
+			growthPhosphorous = (1.2
+					+ (4.635 * Math.pow(MW_HOLSTEIN, 0.22)) * Math.pow(entradaDto.getPesoCorporal(), -0.22))
+					* (entradaDto.getGananciaPeso());
+		}
+
+		Double pRequirement = formatearDecimales(
+				fecalPhosphorous + urinaryPhosphorous + pregnancyPhosphorous + lactationPhosphorous + growthPhosphorous,
+				CANTIDAD_DECIMALES);
+
 		modeloDto.setActualDMI(cmsActual);
 		modeloDto.setTotalDMFeed(totalDmFeed);
 		modeloDto.setScurfRequirement(scurfRequirement);
@@ -274,6 +365,23 @@ public class ModeloService implements IModeloService {
 		modeloDto.setMpPreg(mpPreg);
 		modeloDto.setMpGrowth(mpGrowth);
 		modeloDto.setTotalMpRequirement(totalMpRequeriment);
+		modeloDto.setNeMaint(neMaintEnergy);
+		modeloDto.setyEn(yEn);
+		modeloDto.setNePreg(nePreg);
+		modeloDto.setGrowht(growht);
+		modeloDto.setTotalNeRequirement(totalNeRequirement);
+		modeloDto.setFecalCalcium(fecalCalcium);
+		modeloDto.setUrinaryCalcium(urinaryCalcium);
+		modeloDto.setPregnancyCalcium(pregnancyCalcium);
+		modeloDto.setLactationCalcium(lactationCalcium);
+		modeloDto.setGrowthCalcium(growthCalcium);
+		modeloDto.setFecalPhosphorous(fecalPhosphorous);
+		modeloDto.setUrinaryPhosphorous(urinaryPhosphorous);
+		modeloDto.setPregnancyPhosphorous(pregnancyPhosphorous);
+		modeloDto.setLactationPhosphorous(lactationPhosphorous);
+		modeloDto.setGrowthPhosphorous(growthPhosphorous);
+		modeloDto.setCaRequirement(caRequirement);
+		modeloDto.setpRequirement(pRequirement);
 		return modeloDto;
 	}
 
