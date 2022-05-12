@@ -155,6 +155,8 @@ public class ModeloService implements IModeloService {
 		Double neMaintEnergy = 0.0;
 		Double pregnancyCalcium = 0.0;
 		Double pregnancyPhosphorous = 0.0;
+		Double mgPregnancy = 0.0;
+		Double kPregnancy = 0.0;
 		if (entradaDto.getDiasPrenez() < 190) {
 			scurfRequirement = formatearDecimales(
 					CONSTANT_SCURF_REQUIREMENT
@@ -187,6 +189,8 @@ public class ModeloService implements IModeloService {
 			neMaintEnergy = neMaint;
 			pregnancyCalcium = 0.0;
 			pregnancyPhosphorous = 0.0;
+			mgPregnancy = 0.0;
+			kPregnancy = 0.0;
 		} else {
 			scurfRequirement = formatearDecimales(
 					CONSTANT_SCURF_REQUIREMENT
@@ -224,6 +228,8 @@ public class ModeloService implements IModeloService {
 					* Math.exp(((0.05527 - (0.000075 * entradaDto.getDiasPrenez())) * entradaDto.getDiasPrenez()))
 					- 0.02743 * Math.exp(((0.05527 - (0.000075 * (entradaDto.getDiasPrenez() - 1)))
 							* (entradaDto.getDiasPrenez() - 1)));
+			mgPregnancy = 0.33;
+			kPregnancy = 1.027;
 		}
 
 		Double dmiMaintenanceLevel = neMaint / nel;
@@ -302,14 +308,17 @@ public class ModeloService implements IModeloService {
 
 		Double fecalCalcium = 0.0;
 		Double lactationPhosphorous = 0.0;
+		Double kFecal = 0.0;
 		if (entradaDto.getDiasLeche() > 0) {
 			fecalCalcium = formatearDecimales(3.1 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
 			lactationPhosphorous = 0.0;
+			kFecal = formatearDecimales(6.1 * cmsActual, CANTIDAD_DECIMALES);
 		} else {
 			if (entradaDto.getDiasLeche() == 0) {
 				fecalCalcium = formatearDecimales(1.54 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
 			}
 			lactationPhosphorous = formatearDecimales(0.9 * milkProd, CANTIDAD_DECIMALES);
+			kFecal = formatearDecimales(2.6 * cmsActual, CANTIDAD_DECIMALES);
 		}
 
 		Double urinaryCalcium = formatearDecimales(0.08 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
@@ -354,6 +363,82 @@ public class ModeloService implements IModeloService {
 				fecalPhosphorous + urinaryPhosphorous + pregnancyPhosphorous + lactationPhosphorous + growthPhosphorous,
 				CANTIDAD_DECIMALES);
 
+		Double mgFecal = formatearDecimales(0.003 * entradaDto.getPesoCorporal(), CANTIDAD_DECIMALES);
+
+		Double mgLactation = formatearDecimales(milkProd * 0.15, CANTIDAD_DECIMALES);
+
+		Double mgGrowth = formatearDecimales(0.45 * entradaDto.getGananciaPeso(), CANTIDAD_DECIMALES);
+
+		Double mgRequirement = formatearDecimales(mgFecal + 0.0 + mgPregnancy + mgLactation + mgGrowth,
+				CANTIDAD_DECIMALES);
+
+		Double kUrinary = formatearDecimales(0.038 * entradaDto.getPesoCorporal(), CANTIDAD_DECIMALES);
+
+		Double kLactation = formatearDecimales(0.15 * milkProd, CANTIDAD_DECIMALES);
+
+		Double kGrowth = formatearDecimales(1.6 * entradaDto.getGananciaPeso(), CANTIDAD_DECIMALES);
+
+		Double kRequirement = formatearDecimales(kFecal + kUrinary + kPregnancy + kLactation + kGrowth,
+				CANTIDAD_DECIMALES);
+
+		Double totalConsumidoNel = formatearDecimales(cmsActual * nelAdjusted, CANTIDAD_DECIMALES);
+
+		Double rupDigestible = 0.0;
+		Double sumaProductoCpIntakeRupDigestible = 0.0;
+		Double ca = 0.0, totalConsumidoCa = 0.0;
+		Double p = 0.0, totalConsumidoP = 0.0;
+		Double k = 0.0, totalConsumidoK = 0.0;
+		Double mg = 0.0, totalConsumidoMg = 0.0;
+		for (DietaDto dietaDto : dietaDtos) {
+			Double productoCpIntakeRupDigestible = 0.0;
+			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
+			if (biblioteca != null) {
+				cpIntake = formatearDecimales(dietaDto.getCantidad() * biblioteca.getFdn() / 100 * 1000,
+						CANTIDAD_DECIMALES);
+				ca = formatearDecimales(((dietaDto.getCantidad()*biblioteca.getPorcentajeCa()/100)*1000)*biblioteca.getCoeficienteAbsorcionCa(), CANTIDAD_DECIMALES);
+				p = formatearDecimales(((dietaDto.getCantidad()*biblioteca.getPorcentajeP()/100)*1000)*biblioteca.getCoeficienteAbsorcionP(), CANTIDAD_DECIMALES);
+				k = formatearDecimales(((dietaDto.getCantidad()*biblioteca.getPorcentajeK()/100)*1000)*biblioteca.getCoeficienteAbsorcionK(), CANTIDAD_DECIMALES);
+				mg = formatearDecimales(((dietaDto.getCantidad()*biblioteca.getPorcentajeMg())/1000)*biblioteca.getCoeficienteAbsorcionMg(), CANTIDAD_DECIMALES);
+				if (entradaDto.getNumeroParto() == 0) {
+					rupDigestible = 0.0;
+				} else {
+					if ("Forraje".equals(biblioteca.getTipo())) {
+						rupDigestible = formatearDecimales((biblioteca.getFraccionB()
+								* (kpOfWetForage / (kpOfWetForage + biblioteca.getKdFraccionB()))
+								+ biblioteca.getFraccionC()), CANTIDAD_DECIMALES);
+					} else {
+						rupDigestible = formatearDecimales(
+								(biblioteca.getFraccionB()
+										* (kpOfConcentrate / (kpOfConcentrate + biblioteca.getKdFraccionB()))
+										+ biblioteca.getFraccionC()) * (biblioteca.getDigestibilidadPndr() / 100),
+								CANTIDAD_DECIMALES);
+					}
+				}
+				productoCpIntakeRupDigestible = formatearDecimales( cpIntake * rupDigestible, CANTIDAD_DECIMALES);
+			}
+			sumaProductoCpIntakeRupDigestible = formatearDecimales(sumaProductoCpIntakeRupDigestible + productoCpIntakeRupDigestible, CANTIDAD_DECIMALES);
+			totalConsumidoCa = formatearDecimales(totalConsumidoCa + ca, CANTIDAD_DECIMALES);
+			totalConsumidoP = formatearDecimales(totalConsumidoP + p, CANTIDAD_DECIMALES);
+			totalConsumidoK = formatearDecimales(totalConsumidoK + k, CANTIDAD_DECIMALES);
+			totalConsumidoMg = formatearDecimales(totalConsumidoMg + mg, CANTIDAD_DECIMALES);
+		}
+
+		Double totalConsumidoPm = formatearDecimales(mpBact + (sumaProductoCpIntakeRupDigestible/100)+(1.9*cmsActual*0.4*6.25), CANTIDAD_DECIMALES);
+		
+		Double balanceNel = formatearDecimales(totalConsumidoNel-totalNeRequirement, CANTIDAD_DECIMALES);
+		Double balancePm = formatearDecimales(totalConsumidoPm-totalMpRequeriment, CANTIDAD_DECIMALES);
+		Double balanceCa = formatearDecimales(totalConsumidoCa-caRequirement, CANTIDAD_DECIMALES);
+		Double balanceP = formatearDecimales(totalConsumidoP-pRequirement, CANTIDAD_DECIMALES);
+		Double balanceK = formatearDecimales(totalConsumidoK-kRequirement, CANTIDAD_DECIMALES);
+		Double balanceMg = formatearDecimales(totalConsumidoMg-mgRequirement, CANTIDAD_DECIMALES);
+		
+		Double porcentajeNel = formatearDecimales((balanceNel/totalNeRequirement)*100, CANTIDAD_DECIMALES);
+		Double porcentajePm = formatearDecimales((balancePm/totalMpRequeriment)*100, CANTIDAD_DECIMALES);
+		Double porcentajeCa = formatearDecimales((balanceCa/caRequirement)*100, CANTIDAD_DECIMALES);
+		Double porcentajeP = formatearDecimales((balanceP/pRequirement)*100, CANTIDAD_DECIMALES);
+		Double porcentajeK = formatearDecimales((balanceK/kRequirement)*100, CANTIDAD_DECIMALES);
+		Double porcentajeMg = formatearDecimales((balanceMg/mgRequirement)*100, CANTIDAD_DECIMALES);
+		
 		modeloDto.setActualDMI(cmsActual);
 		modeloDto.setTotalDMFeed(totalDmFeed);
 		modeloDto.setScurfRequirement(scurfRequirement);
@@ -382,6 +467,36 @@ public class ModeloService implements IModeloService {
 		modeloDto.setGrowthPhosphorous(growthPhosphorous);
 		modeloDto.setCaRequirement(caRequirement);
 		modeloDto.setpRequirement(pRequirement);
+		modeloDto.setMgFecal(mgFecal);
+		modeloDto.setMgUrinary(0.0);
+		modeloDto.setMgPregnancy(mgPregnancy);
+		modeloDto.setMgLactation(mgLactation);
+		modeloDto.setMgGrowth(mgGrowth);
+		modeloDto.setMgRequirement(mgRequirement);
+		modeloDto.setkFecal(kFecal);
+		modeloDto.setkUrinary(kUrinary);
+		modeloDto.setkPregnancy(kPregnancy);
+		modeloDto.setkLactation(kLactation);
+		modeloDto.setkGrowth(kGrowth);
+		modeloDto.setkRequirement(kRequirement);
+		modeloDto.setTotalConsumidoNel(totalConsumidoNel);
+		modeloDto.setTotalConsumidoPm(totalConsumidoPm);
+		modeloDto.setTotalConsumidoCa(totalConsumidoCa);
+		modeloDto.setTotalConsumidoP(totalConsumidoP);
+		modeloDto.setTotalConsumidoK(totalConsumidoK);
+		modeloDto.setTotalConsumidoMg(totalConsumidoMg);
+		modeloDto.setBalanceNel(balanceNel);
+		modeloDto.setBalancePm(balancePm);
+		modeloDto.setBalanceCa(balanceCa);
+		modeloDto.setBalanceP(balanceP);
+		modeloDto.setBalanceK(balanceK);
+		modeloDto.setBalanceMg(balanceMg);
+		modeloDto.setPorcentajeCa(porcentajeCa);
+		modeloDto.setPorcentajeK(porcentajeK);
+		modeloDto.setPorcentajeMg(porcentajeMg);
+		modeloDto.setPorcentajeNel(porcentajeNel);
+		modeloDto.setPorcentajeP(porcentajeP);
+		modeloDto.setPorcentajePm(porcentajePm);
 		return modeloDto;
 	}
 
