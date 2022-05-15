@@ -45,13 +45,13 @@ public class ModeloService implements IModeloService {
 				CANTIDAD_DECIMALES);
 		System.out.println(milkTrueProtein);
 		Double fcm = formatearDecimales((FCM_CONSTANT_DOUBLE * milkProd
-				+ FCM_CONSTANT_INTEGER * (milkProd * entradaDto.getGrasa() / CONSTANT_CIEN)), 2);
+				+ FCM_CONSTANT_INTEGER * (milkProd * entradaDto.getGrasa() / CONSTANT_CIEN)), CANTIDAD_DECIMALES);
 		System.out.println(fcm);
 		Double milkEneg = 0.0;
 		if (entradaDto.getLactosa() == 0) {
 			milkEneg = formatearDecimales((MILK_ENEG_CONSTANT * entradaDto.getGrasa())
 					+ (MILK_ENEG_CONSTANT_DOS * (milkTrueProtein / MILK_ENEG_CONSTANT_TRES))
-					+ MILK_ENEG_CONSTANT_CUATRO, 2);
+					+ MILK_ENEG_CONSTANT_CUATRO, CANTIDAD_DECIMALES);
 		} else {
 			if (entradaDto.getLactosa() > 0) {
 				milkEneg = formatearDecimales((MILK_ENEG_CONSTANT * entradaDto.getGrasa())
@@ -264,39 +264,31 @@ public class ModeloService implements IModeloService {
 
 		Double meanTargetSbw = formatearDecimales(entradaDto.getPesoCorporal() * 0.96, CANTIDAD_DECIMALES);
 		Double eqsbw = 0.0;
-		Double lactationCalcium = 0.0;
 		if ("Jersey".equals(entradaDto.getRaza())) {
 			eqsbw = formatearDecimales(meanTargetSbw * (478 / (MW_JERSEY * 0.96)), CANTIDAD_DECIMALES);
-			lactationCalcium = formatearDecimales(1.45 * milkProd, CANTIDAD_DECIMALES);
 		} else {
 			eqsbw = formatearDecimales(meanTargetSbw * (478 / (MW_HOLSTEIN * 0.96)), CANTIDAD_DECIMALES);
-			lactationCalcium = formatearDecimales(1.22 * milkProd, CANTIDAD_DECIMALES);
 		}
 
 		Double eqebw = formatearDecimales(eqsbw * 0.891, CANTIDAD_DECIMALES);
-		Double eqebeExp = formatearDecimales(Math.pow(eqebw, 0.75), CANTIDAD_DECIMALES);
+		Double eqebwExp = formatearDecimales(Math.pow(eqebw, 0.75), CANTIDAD_DECIMALES);
 		Double swg = formatearDecimales(entradaDto.getGananciaPeso() * 0.96, CANTIDAD_DECIMALES);
 		Double eqebg = formatearDecimales(swg * 0.956, CANTIDAD_DECIMALES);
 		Double eqebgExp = formatearDecimales(Math.pow(eqebg, 1.097), CANTIDAD_DECIMALES);
-		Double re = formatearDecimales(0.0635 * eqebeExp * eqebgExp, CANTIDAD_DECIMALES);
+		Double re = formatearDecimales(0.0635 * eqebwExp * eqebgExp, CANTIDAD_DECIMALES);
 
 		Double npg = formatearDecimales(swg * (268 - (29.4 * (re / swg))), CANTIDAD_DECIMALES);
 		Double effmpNpg = formatearDecimales((83.4 - (0.114 * eqsbw)) / 100, CANTIDAD_DECIMALES);
 
-		Double mpGrowth = 0.0;
 		Double growht = 0.0;
 		Double fecalPhosphorous = 0.0;
 		if (entradaDto.getNumeroParto() <= 2) {
-			mpGrowth = formatearDecimales(npg / effmpNpg, CANTIDAD_DECIMALES);
 			growht = re;
 			fecalPhosphorous = formatearDecimales(0.8 * cmsActual, CANTIDAD_DECIMALES);
 		} else {
-			mpGrowth = 0.0;
 			growht = 0.0;
 			fecalPhosphorous = formatearDecimales(1 * cmsActual, CANTIDAD_DECIMALES);
 		}
-
-		Double totalMpRequeriment = formatearDecimales(mpMaint + mpLact + mpPreg + mpGrowth, CANTIDAD_DECIMALES);
 
 		Double yEn = formatearDecimales(fcm * milkProd, CANTIDAD_DECIMALES);
 
@@ -309,21 +301,36 @@ public class ModeloService implements IModeloService {
 		Double fecalCalcium = 0.0;
 		Double lactationPhosphorous = 0.0;
 		Double kFecal = 0.0;
+		Double kLactation = 0.0;
+		Double mgLactation = 0.0;
+		Double lactationCalcium = 0.0;
+		
 		if (entradaDto.getDiasLeche() > 0) {
 			fecalCalcium = formatearDecimales(3.1 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
-			lactationPhosphorous = 0.0;
+			lactationPhosphorous = formatearDecimales(0.9*milkProd, CANTIDAD_DECIMALES);
 			kFecal = formatearDecimales(6.1 * cmsActual, CANTIDAD_DECIMALES);
+			kLactation = formatearDecimales(0.15 * milkProd, CANTIDAD_DECIMALES);
+			mgLactation = formatearDecimales(milkProd * 0.15, CANTIDAD_DECIMALES);
+			if ("Jersey".equals(entradaDto.getRaza())) {
+				lactationCalcium = formatearDecimales(1.45 * milkProd, CANTIDAD_DECIMALES);
+			} else {
+				lactationCalcium = formatearDecimales(1.22 * milkProd, CANTIDAD_DECIMALES);
+			}
 		} else {
 			if (entradaDto.getDiasLeche() == 0) {
 				fecalCalcium = formatearDecimales(1.54 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
+				kFecal = formatearDecimales(2.6 * cmsActual, CANTIDAD_DECIMALES);
+				kLactation = 0.0;
+				lactationPhosphorous = 0.0;
+				mgLactation = 0.0;
+				lactationCalcium = 0.0;
 			}
-			lactationPhosphorous = formatearDecimales(0.9 * milkProd, CANTIDAD_DECIMALES);
-			kFecal = formatearDecimales(2.6 * cmsActual, CANTIDAD_DECIMALES);
 		}
 
 		Double urinaryCalcium = formatearDecimales(0.08 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
 
 		Double growthCalcium = 0.0;
+		Double mpGrowth = 0.0;
 		if (entradaDto.getGananciaPeso() > 0) {
 			if ("Jersey".equals(entradaDto.getRaza())) {
 				growthCalcium = formatearDecimales(
@@ -336,11 +343,19 @@ public class ModeloService implements IModeloService {
 								* (entradaDto.getGananciaPeso()),
 						CANTIDAD_DECIMALES);
 			}
+			if (entradaDto.getNumeroParto() <= 2) {
+				mpGrowth = formatearDecimales(npg / effmpNpg, CANTIDAD_DECIMALES);
+			} else {
+				mpGrowth = 0.0;
+			}
 		} else {
 			if (entradaDto.getGananciaPeso() == 0) {
 				growthCalcium = 0.0;
+				mpGrowth = 0.0;
 			}
 		}
+		
+		Double totalMpRequeriment = formatearDecimales(mpMaint + mpLact + mpPreg + mpGrowth, CANTIDAD_DECIMALES);
 
 		Double caRequirement = formatearDecimales(
 				fecalCalcium + urinaryCalcium + pregnancyCalcium + lactationCalcium + growthCalcium,
@@ -365,16 +380,12 @@ public class ModeloService implements IModeloService {
 
 		Double mgFecal = formatearDecimales(0.003 * entradaDto.getPesoCorporal(), CANTIDAD_DECIMALES);
 
-		Double mgLactation = formatearDecimales(milkProd * 0.15, CANTIDAD_DECIMALES);
-
 		Double mgGrowth = formatearDecimales(0.45 * entradaDto.getGananciaPeso(), CANTIDAD_DECIMALES);
 
 		Double mgRequirement = formatearDecimales(mgFecal + 0.0 + mgPregnancy + mgLactation + mgGrowth,
 				CANTIDAD_DECIMALES);
 
 		Double kUrinary = formatearDecimales(0.038 * entradaDto.getPesoCorporal(), CANTIDAD_DECIMALES);
-
-		Double kLactation = formatearDecimales(0.15 * milkProd, CANTIDAD_DECIMALES);
 
 		Double kGrowth = formatearDecimales(1.6 * entradaDto.getGananciaPeso(), CANTIDAD_DECIMALES);
 
