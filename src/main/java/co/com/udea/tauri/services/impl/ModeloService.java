@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import co.com.udea.tauri.dtos.DietaDto;
 import co.com.udea.tauri.dtos.EntradaDto;
 import co.com.udea.tauri.dtos.ModeloDto;
+import co.com.udea.tauri.dtos.RelacionBeneficioCostoDto;
 import co.com.udea.tauri.entities.Biblioteca;
 import co.com.udea.tauri.repositories.BibliotecaRepository;
 import co.com.udea.tauri.services.IModeloService;
@@ -471,6 +472,32 @@ public class ModeloService implements IModeloService {
 		modeloDto.setPorcentajeP(porcentajeP);
 		modeloDto.setPorcentajePm(porcentajePm);
 		return modeloDto;
+	}
+	
+	@Override
+	public RelacionBeneficioCostoDto calcularRelacionBeneficio(EntradaDto entradaDto, List<DietaDto> dietaDtos) {
+		RelacionBeneficioCostoDto relacionBeneficioCostoDto = new RelacionBeneficioCostoDto();
+		Double cmsActual = 0.0;
+		Double sumaPrecioDieta = 0.0;
+		for (DietaDto dietaDto : dietaDtos) {
+			cmsActual = cmsActual + dietaDto.getCantidad();
+			Double precioUnidadDieta = dietaDto.getCantidad() * dietaDto.getCantidadOfrecido();
+			sumaPrecioDieta = sumaPrecioDieta + precioUnidadDieta;
+		}
+		Double eficienciaAlimentacia = formatearDecimales(entradaDto.getProduccionLeche()/cmsActual, CANTIDAD_DECIMALES);
+		Double precioDieta = formatearDecimales(sumaPrecioDieta/cmsActual, CANTIDAD_DECIMALES);
+		Double costoLitroLeche = formatearDecimales((precioDieta*(1/eficienciaAlimentacia)), CANTIDAD_DECIMALES);
+		Double margenUtilidadBruta = formatearDecimales(entradaDto.getPrecioVenta() - costoLitroLeche, CANTIDAD_DECIMALES);
+		Double margenPorcentual = formatearDecimales((margenUtilidadBruta/entradaDto.getPrecioVenta())*100, CANTIDAD_DECIMALES);
+		Double relacionPrecio = formatearDecimales(entradaDto.getPrecioVenta()/precioDieta, CANTIDAD_DECIMALES);
+		
+		relacionBeneficioCostoDto.setEficienciaAlimentica(eficienciaAlimentacia);
+		relacionBeneficioCostoDto.setCostoDieta(precioDieta);
+		relacionBeneficioCostoDto.setCostoLitroLeche(costoLitroLeche);
+		relacionBeneficioCostoDto.setMargenUtilidadBruta(margenUtilidadBruta);
+		relacionBeneficioCostoDto.setMargenPorcentual(margenPorcentual);
+		relacionBeneficioCostoDto.setRelacionPrecioVentaCostoAlimentacion(relacionPrecio);
+		return relacionBeneficioCostoDto;
 	}
 
 	private static Double formatearDecimales(Double numero, Integer numeroDecimales) {
