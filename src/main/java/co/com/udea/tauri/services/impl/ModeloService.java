@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import co.com.udea.tauri.dtos.DietaDto;
+import co.com.udea.tauri.dtos.EmisionGeiDto;
 import co.com.udea.tauri.dtos.EntradaDto;
 import co.com.udea.tauri.dtos.ModeloDto;
 import co.com.udea.tauri.dtos.RelacionBeneficioCostoDto;
@@ -39,8 +40,10 @@ public class ModeloService implements IModeloService {
 		Double milkProd = formatearDecimales(entradaDto.getProduccionLeche() * MILK_PROD_CONSTANT, CANTIDAD_DECIMALES);
 		Double milkTrueProtein = formatearDecimales(entradaDto.getProteinaCruda() * MILK_TRUE_PROTEIN_CONSTANT,
 				CANTIDAD_DECIMALES);
-		Double fcm = formatearDecimales((FCM_CONSTANT_DOUBLE * milkProd
-				+ FCM_CONSTANT_INTEGER * (milkProd * entradaDto.getGrasa() / CONSTANT_CIEN)), CANTIDAD_DECIMALES);
+		Double fcm = formatearDecimales(
+				(FCM_CONSTANT_DOUBLE * milkProd
+						+ FCM_CONSTANT_INTEGER * (milkProd * entradaDto.getGrasa() / CONSTANT_CIEN)),
+				CANTIDAD_DECIMALES);
 		Double yprotn = formatearDecimales((milkProd * (milkTrueProtein / CONSTANT_CIEN)), 2);
 		Double cbw = 0.0;
 		if ("Jersey".equals(entradaDto.getRaza())) {
@@ -267,10 +270,10 @@ public class ModeloService implements IModeloService {
 		Double kLactation = 0.0;
 		Double mgLactation = 0.0;
 		Double lactationCalcium = 0.0;
-		
+
 		if (entradaDto.getDiasLeche() > 0) {
 			fecalCalcium = formatearDecimales(3.1 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
-			lactationPhosphorous = formatearDecimales(0.9*milkProd, CANTIDAD_DECIMALES);
+			lactationPhosphorous = formatearDecimales(0.9 * milkProd, CANTIDAD_DECIMALES);
 			kFecal = formatearDecimales(6.1 * cmsActual, CANTIDAD_DECIMALES);
 			kLactation = formatearDecimales(0.15 * milkProd, CANTIDAD_DECIMALES);
 			mgLactation = formatearDecimales(milkProd * 0.15, CANTIDAD_DECIMALES);
@@ -317,7 +320,7 @@ public class ModeloService implements IModeloService {
 				mpGrowth = 0.0;
 			}
 		}
-		
+
 		Double totalMpRequeriment = formatearDecimales(mpMaint + mpLact + mpPreg + mpGrowth, CANTIDAD_DECIMALES);
 
 		Double caRequirement = formatearDecimales(
@@ -369,10 +372,14 @@ public class ModeloService implements IModeloService {
 			if (biblioteca != null) {
 				cpIntake = formatearDecimales(dietaDto.getCantidad() * biblioteca.getFdn() / 100 * 1000,
 						CANTIDAD_DECIMALES);
-				ca = formatearDecimales(((dietaDto.getCantidad()*biblioteca.getPorcentajeCa()/100)*1000)*biblioteca.getCoeficienteAbsorcionCa(), CANTIDAD_DECIMALES);
-				p = formatearDecimales(((dietaDto.getCantidad()*biblioteca.getPorcentajeP()/100)*1000)*biblioteca.getCoeficienteAbsorcionP(), CANTIDAD_DECIMALES);
-				k = formatearDecimales(((dietaDto.getCantidad()*biblioteca.getPorcentajeK()/100)*1000)*biblioteca.getCoeficienteAbsorcionK(), CANTIDAD_DECIMALES);
-				mg = formatearDecimales(((dietaDto.getCantidad()*biblioteca.getPorcentajeMg())/1000)*biblioteca.getCoeficienteAbsorcionMg(), CANTIDAD_DECIMALES);
+				ca = formatearDecimales(((dietaDto.getCantidad() * biblioteca.getPorcentajeCa() / 100) * 1000)
+						* biblioteca.getCoeficienteAbsorcionCa(), CANTIDAD_DECIMALES);
+				p = formatearDecimales(((dietaDto.getCantidad() * biblioteca.getPorcentajeP() / 100) * 1000)
+						* biblioteca.getCoeficienteAbsorcionP(), CANTIDAD_DECIMALES);
+				k = formatearDecimales(((dietaDto.getCantidad() * biblioteca.getPorcentajeK() / 100) * 1000)
+						* biblioteca.getCoeficienteAbsorcionK(), CANTIDAD_DECIMALES);
+				mg = formatearDecimales(((dietaDto.getCantidad() * biblioteca.getPorcentajeMg()) / 1000)
+						* biblioteca.getCoeficienteAbsorcionMg(), CANTIDAD_DECIMALES);
 				if (entradaDto.getNumeroParto() == 0) {
 					rupDigestible = 0.0;
 				} else {
@@ -388,31 +395,34 @@ public class ModeloService implements IModeloService {
 								CANTIDAD_DECIMALES);
 					}
 				}
-				productoCpIntakeRupDigestible = formatearDecimales( cpIntake * rupDigestible, CANTIDAD_DECIMALES);
+				productoCpIntakeRupDigestible = formatearDecimales(cpIntake * rupDigestible, CANTIDAD_DECIMALES);
 			}
-			sumaProductoCpIntakeRupDigestible = formatearDecimales(sumaProductoCpIntakeRupDigestible + productoCpIntakeRupDigestible, CANTIDAD_DECIMALES);
+			sumaProductoCpIntakeRupDigestible = formatearDecimales(
+					sumaProductoCpIntakeRupDigestible + productoCpIntakeRupDigestible, CANTIDAD_DECIMALES);
 			totalConsumidoCa = formatearDecimales(totalConsumidoCa + ca, CANTIDAD_DECIMALES);
 			totalConsumidoP = formatearDecimales(totalConsumidoP + p, CANTIDAD_DECIMALES);
 			totalConsumidoK = formatearDecimales(totalConsumidoK + k, CANTIDAD_DECIMALES);
 			totalConsumidoMg = formatearDecimales(totalConsumidoMg + mg, CANTIDAD_DECIMALES);
 		}
 
-		Double totalConsumidoPm = formatearDecimales(mpBact + (sumaProductoCpIntakeRupDigestible/100)+(1.9*cmsActual*0.4*6.25), CANTIDAD_DECIMALES);
-		
-		Double balanceNel = formatearDecimales(totalConsumidoNel-totalNeRequirement, CANTIDAD_DECIMALES);
-		Double balancePm = formatearDecimales(totalConsumidoPm-totalMpRequeriment, CANTIDAD_DECIMALES);
-		Double balanceCa = formatearDecimales(totalConsumidoCa-caRequirement, CANTIDAD_DECIMALES);
-		Double balanceP = formatearDecimales(totalConsumidoP-pRequirement, CANTIDAD_DECIMALES);
-		Double balanceK = formatearDecimales(totalConsumidoK-kRequirement, CANTIDAD_DECIMALES);
-		Double balanceMg = formatearDecimales(totalConsumidoMg-mgRequirement, CANTIDAD_DECIMALES);
-		
-		Double porcentajeNel = formatearDecimales((balanceNel/totalNeRequirement)*100, CANTIDAD_DECIMALES);
-		Double porcentajePm = formatearDecimales((balancePm/totalMpRequeriment)*100, CANTIDAD_DECIMALES);
-		Double porcentajeCa = formatearDecimales((balanceCa/caRequirement)*100, CANTIDAD_DECIMALES);
-		Double porcentajeP = formatearDecimales((balanceP/pRequirement)*100, CANTIDAD_DECIMALES);
-		Double porcentajeK = formatearDecimales((balanceK/kRequirement)*100, CANTIDAD_DECIMALES);
-		Double porcentajeMg = formatearDecimales((balanceMg/mgRequirement)*100, CANTIDAD_DECIMALES);
-		
+		Double totalConsumidoPm = formatearDecimales(
+				mpBact + (sumaProductoCpIntakeRupDigestible / 100) + (1.9 * cmsActual * 0.4 * 6.25),
+				CANTIDAD_DECIMALES);
+
+		Double balanceNel = formatearDecimales(totalConsumidoNel - totalNeRequirement, CANTIDAD_DECIMALES);
+		Double balancePm = formatearDecimales(totalConsumidoPm - totalMpRequeriment, CANTIDAD_DECIMALES);
+		Double balanceCa = formatearDecimales(totalConsumidoCa - caRequirement, CANTIDAD_DECIMALES);
+		Double balanceP = formatearDecimales(totalConsumidoP - pRequirement, CANTIDAD_DECIMALES);
+		Double balanceK = formatearDecimales(totalConsumidoK - kRequirement, CANTIDAD_DECIMALES);
+		Double balanceMg = formatearDecimales(totalConsumidoMg - mgRequirement, CANTIDAD_DECIMALES);
+
+		Double porcentajeNel = formatearDecimales((balanceNel / totalNeRequirement) * 100, CANTIDAD_DECIMALES);
+		Double porcentajePm = formatearDecimales((balancePm / totalMpRequeriment) * 100, CANTIDAD_DECIMALES);
+		Double porcentajeCa = formatearDecimales((balanceCa / caRequirement) * 100, CANTIDAD_DECIMALES);
+		Double porcentajeP = formatearDecimales((balanceP / pRequirement) * 100, CANTIDAD_DECIMALES);
+		Double porcentajeK = formatearDecimales((balanceK / kRequirement) * 100, CANTIDAD_DECIMALES);
+		Double porcentajeMg = formatearDecimales((balanceMg / mgRequirement) * 100, CANTIDAD_DECIMALES);
+
 		modeloDto.setActualDMI(cmsActual);
 		modeloDto.setTotalDMFeed(totalDmFeed);
 		modeloDto.setScurfRequirement(scurfRequirement);
@@ -473,7 +483,7 @@ public class ModeloService implements IModeloService {
 		modeloDto.setPorcentajePm(porcentajePm);
 		return modeloDto;
 	}
-	
+
 	@Override
 	public RelacionBeneficioCostoDto calcularRelacionBeneficio(EntradaDto entradaDto, List<DietaDto> dietaDtos) {
 		RelacionBeneficioCostoDto relacionBeneficioCostoDto = new RelacionBeneficioCostoDto();
@@ -484,13 +494,16 @@ public class ModeloService implements IModeloService {
 			Double precioUnidadDieta = dietaDto.getCantidad() * dietaDto.getCantidadOfrecido();
 			sumaPrecioDieta = sumaPrecioDieta + precioUnidadDieta;
 		}
-		Double eficienciaAlimentacia = formatearDecimales(entradaDto.getProduccionLeche()/cmsActual, CANTIDAD_DECIMALES);
-		Double precioDieta = formatearDecimales(sumaPrecioDieta/cmsActual, CANTIDAD_DECIMALES);
-		Double costoLitroLeche = formatearDecimales((precioDieta*(1/eficienciaAlimentacia)), CANTIDAD_DECIMALES);
-		Double margenUtilidadBruta = formatearDecimales(entradaDto.getPrecioVenta() - costoLitroLeche, CANTIDAD_DECIMALES);
-		Double margenPorcentual = formatearDecimales((margenUtilidadBruta/entradaDto.getPrecioVenta())*100, CANTIDAD_DECIMALES);
-		Double relacionPrecio = formatearDecimales(entradaDto.getPrecioVenta()/precioDieta, CANTIDAD_DECIMALES);
-		
+		Double eficienciaAlimentacia = formatearDecimales(entradaDto.getProduccionLeche() / cmsActual,
+				CANTIDAD_DECIMALES);
+		Double precioDieta = formatearDecimales(sumaPrecioDieta / cmsActual, CANTIDAD_DECIMALES);
+		Double costoLitroLeche = formatearDecimales((precioDieta * (1 / eficienciaAlimentacia)), CANTIDAD_DECIMALES);
+		Double margenUtilidadBruta = formatearDecimales(entradaDto.getPrecioVenta() - costoLitroLeche,
+				CANTIDAD_DECIMALES);
+		Double margenPorcentual = formatearDecimales((margenUtilidadBruta / entradaDto.getPrecioVenta()) * 100,
+				CANTIDAD_DECIMALES);
+		Double relacionPrecio = formatearDecimales(entradaDto.getPrecioVenta() / precioDieta, CANTIDAD_DECIMALES);
+
 		relacionBeneficioCostoDto.setEficienciaAlimentica(eficienciaAlimentacia);
 		relacionBeneficioCostoDto.setCostoDieta(precioDieta);
 		relacionBeneficioCostoDto.setCostoLitroLeche(costoLitroLeche);
@@ -498,6 +511,172 @@ public class ModeloService implements IModeloService {
 		relacionBeneficioCostoDto.setMargenPorcentual(margenPorcentual);
 		relacionBeneficioCostoDto.setRelacionPrecioVentaCostoAlimentacion(relacionPrecio);
 		return relacionBeneficioCostoDto;
+	}
+
+	@Override
+	public EmisionGeiDto calcularEmisionGei(EntradaDto entradaDto, List<DietaDto> dietaDtos) {
+		EmisionGeiDto emisionGeiDto = new EmisionGeiDto();
+
+		Double cmsActual = 0.0, ge = 0.0, cnf = 0.0, geProducto = 0.0, sumeGeProducto = 0.0;
+		for (DietaDto dietaDto : dietaDtos) {
+			cmsActual = cmsActual + dietaDto.getCantidad();
+			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
+			if (biblioteca != null) {
+				if (dietaDto.getCantidad() == 0) {
+					cnf = 0.0;
+				} else {
+					if (dietaDto.getCantidad() > 0) {
+						cnf = formatearDecimales((100 - (biblioteca.getPb() + biblioteca.getFdn()
+								+ biblioteca.getGrasaCruda() + biblioteca.getCeniza())), CANTIDAD_DECIMALES);
+					}
+				}
+				ge = formatearDecimales(((biblioteca.getPb() * 5.65) + (biblioteca.getGrasaCruda() * 9.4)
+						+ (biblioteca.getFdn() * 4.25) + (cnf * 4.15)) / 100, CANTIDAD_DECIMALES);
+			}
+			geProducto = dietaDto.getCantidad() * ge;
+			sumeGeProducto = sumeGeProducto + geProducto;
+		}
+		Double milkProd = formatearDecimales(entradaDto.getProduccionLeche() * MILK_PROD_CONSTANT, CANTIDAD_DECIMALES);
+		Double fcm = formatearDecimales(
+				(FCM_CONSTANT_DOUBLE * milkProd
+						+ FCM_CONSTANT_INTEGER * (milkProd * entradaDto.getGrasa() / CONSTANT_CIEN)),
+				CANTIDAD_DECIMALES);
+
+		Double metanoDiaLitro = formatearDecimales(21.1284 * cmsActual, CANTIDAD_DECIMALES);
+		Double metanoDiaGramo = formatearDecimales(metanoDiaLitro * 0.717, CANTIDAD_DECIMALES);
+		Double metanoMsConsumidaLitro = formatearDecimales(metanoDiaLitro / cmsActual, CANTIDAD_DECIMALES);
+		Double metanoMsConsumidaGramo = formatearDecimales(metanoDiaGramo / cmsActual, CANTIDAD_DECIMALES);
+		Double metanoLcgLitro = formatearDecimales(metanoDiaLitro / fcm, CANTIDAD_DECIMALES);
+		Double metanoLcgGramo = formatearDecimales(metanoDiaGramo / fcm, CANTIDAD_DECIMALES);
+		Double metanoFactorEmision = formatearDecimales((metanoDiaGramo * 365) / 1000, CANTIDAD_DECIMALES);
+		Double metanoYm = formatearDecimales(((metanoDiaLitro * 0.00945) / sumeGeProducto) * 100, CANTIDAD_DECIMALES);
+
+		Double dioxidoCarbonoDiaGramo = formatearDecimales(24.084 * metanoDiaGramo + 3280.5, CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoDiaLitro = formatearDecimales(dioxidoCarbonoDiaGramo / 1.976, CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoMsConsumidoGramo = formatearDecimales(dioxidoCarbonoDiaGramo / cmsActual,
+				CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoMsConsumidoLitro = formatearDecimales(dioxidoCarbonoDiaLitro / cmsActual,
+				CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoLgcGramo = formatearDecimales(dioxidoCarbonoDiaGramo / fcm, CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoLcgLitro = formatearDecimales(dioxidoCarbonoDiaLitro / fcm, CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoFactorEmision = formatearDecimales((dioxidoCarbonoDiaGramo * 365) / 1000,
+				CANTIDAD_DECIMALES);
+
+		Double dioxidoCarbonoEqDiaGramo = formatearDecimales((metanoDiaGramo * 28) + dioxidoCarbonoDiaGramo,
+				CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoEqMsConsumidoGramo = formatearDecimales(dioxidoCarbonoEqDiaGramo / cmsActual,
+				CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoEqLcgGramo = formatearDecimales(dioxidoCarbonoEqDiaGramo / fcm, CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoEqFactorEmision = formatearDecimales((dioxidoCarbonoEqDiaGramo * 365) / 1000,
+				CANTIDAD_DECIMALES);
+
+		Double msAbsorbidaProduccionFecal = formatearDecimales(cmsActual * (69 / 100), CANTIDAD_DECIMALES);
+		Double msFecalProduccionFecal = formatearDecimales(cmsActual - msAbsorbidaProduccionFecal, CANTIDAD_DECIMALES);
+		Double emisionMetanoDiaProduccionFecal = formatearDecimales(msFecalProduccionFecal * 1.4, CANTIDAD_DECIMALES);
+		Double emisionMetanoAnioProduccionFecal = formatearDecimales((emisionMetanoDiaProduccionFecal * 365) / 1000,
+				CANTIDAD_DECIMALES);
+
+		Double emisionMetanoDiaProduccionUrinaria = formatearDecimales(27.0 * 0, CANTIDAD_DECIMALES);
+		Double emisionMetanoAnioProduccionUrinaria = formatearDecimales(
+				(emisionMetanoDiaProduccionUrinaria * 365) / 1000, CANTIDAD_DECIMALES);
+
+		Double metanoExcretaFactorEmision = formatearDecimales(
+				emisionMetanoAnioProduccionFecal + emisionMetanoAnioProduccionUrinaria, CANTIDAD_DECIMALES);
+		Double metanoDiaExcretaGramo = formatearDecimales((metanoExcretaFactorEmision * 1000) / 365,
+				CANTIDAD_DECIMALES);
+		Double metanoMsConsumidoExcretaGramo = formatearDecimales(metanoDiaExcretaGramo / cmsActual,
+				CANTIDAD_DECIMALES);
+		Double metanoLcgExcretaGramo = formatearDecimales(metanoDiaExcretaGramo / fcm, CANTIDAD_DECIMALES);
+
+		Double msAbsorbidaCo2Fecal = formatearDecimales(cmsActual * (69 / 100), CANTIDAD_DECIMALES);
+		Double msFecalCo2Fecal = formatearDecimales(cmsActual - msAbsorbidaCo2Fecal, CANTIDAD_DECIMALES);
+		Double emisionCo2DiaFecal = formatearDecimales(msFecalCo2Fecal * 508.9, CANTIDAD_DECIMALES);
+		Double emisionCo2anioFecal = formatearDecimales((emisionCo2DiaFecal * 365) / 1000, CANTIDAD_DECIMALES);
+
+		Double emisionCo2diaUrinaria = formatearDecimales(27 * 30.2, CANTIDAD_DECIMALES);
+		Double emisionCo2anioUrinaria = formatearDecimales((emisionCo2diaUrinaria * 365) / 1000, CANTIDAD_DECIMALES);
+
+		Double dioxidoCarbonoExcretaFactorEmision = formatearDecimales(emisionCo2anioFecal + emisionCo2anioUrinaria,
+				CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoExcretaDiaGramo = formatearDecimales((dioxidoCarbonoExcretaFactorEmision * 1000) / 365,
+				CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoExcretaMsConsumidoGramo = formatearDecimales(dioxidoCarbonoExcretaDiaGramo / cmsActual,
+				CANTIDAD_DECIMALES);
+		Double dioxidoCarbonoExcretaLgcGramo = formatearDecimales(dioxidoCarbonoExcretaDiaGramo / fcm,
+				CANTIDAD_DECIMALES);
+
+		Double msAbsorbidaN2oFecal = formatearDecimales(cmsActual * (69 / 100), CANTIDAD_DECIMALES);
+		Double msFecalN2oFecal = formatearDecimales(cmsActual - msAbsorbidaN2oFecal, CANTIDAD_DECIMALES);
+		Double nAplicadoFecal = formatearDecimales(msFecalN2oFecal * 0.03, CANTIDAD_DECIMALES);
+		Double emisionNN2oDiaFecal = formatearDecimales((nAplicadoFecal * (0.32 / 100)) * 1000, CANTIDAD_DECIMALES);
+		Double emisionN2oDiaFecal = formatearDecimales(emisionNN2oDiaFecal / 0.6364, CANTIDAD_DECIMALES);
+		Double emisionN2oAnioFecal = formatearDecimales((emisionN2oDiaFecal * 365) / 1000, CANTIDAD_DECIMALES);
+
+		Double nAplicadoUrinario = formatearDecimales(27 * 0.006, CANTIDAD_DECIMALES);
+		Double emisionNN2oUrinario = formatearDecimales((nAplicadoUrinario * (1.67 / 100)) * 1000, CANTIDAD_DECIMALES);
+		Double emisionN2oDiaUrinario = formatearDecimales(emisionNN2oUrinario / 0.6364, CANTIDAD_DECIMALES);
+		Double emisionN2oAnioUrinario = formatearDecimales((emisionN2oDiaUrinario * 365) / 1000, CANTIDAD_DECIMALES);
+
+		Double oxidoNitrosoFactorEmision = formatearDecimales(emisionN2oAnioFecal + emisionN2oAnioUrinario,
+				CANTIDAD_DECIMALES);
+		Double oxidoNitrosoDiaGramo = formatearDecimales((oxidoNitrosoFactorEmision * 1000) / 365, CANTIDAD_DECIMALES);
+		Double oxidoNitrosoMsConsumidoGramo = formatearDecimales(oxidoNitrosoDiaGramo / cmsActual, CANTIDAD_DECIMALES);
+		Double oxidoNitrosoLcgGramo = formatearDecimales(oxidoNitrosoDiaGramo / fcm, CANTIDAD_DECIMALES);
+
+		Double msAbsorbidaCo2EqFecal = formatearDecimales(cmsActual * (69 / 100), CANTIDAD_DECIMALES);
+		Double msFecalCo2EqFecal = formatearDecimales(cmsActual - msAbsorbidaCo2EqFecal, CANTIDAD_DECIMALES);
+		Double emisionCo2EqDiaFecal = formatearDecimales(msFecalCo2EqFecal * 564, CANTIDAD_DECIMALES);
+		Double emisionCo2EqAnioFecal = formatearDecimales((emisionCo2EqDiaFecal * 365) / 1000, CANTIDAD_DECIMALES);
+
+		Double emisionCo2EqDiaUrinario = formatearDecimales(17 * 74.98, CANTIDAD_DECIMALES);
+		Double emisionCo2EqAnioUrinario = formatearDecimales((emisionCo2EqDiaUrinario * 365) / 1000,
+				CANTIDAD_DECIMALES);
+
+		Double co2FactorEmision = formatearDecimales(emisionCo2EqAnioFecal + emisionCo2EqAnioUrinario,
+				CANTIDAD_DECIMALES);
+		Double co2EqDiaGramo = formatearDecimales((co2FactorEmision * 1000) / 365, CANTIDAD_DECIMALES);
+		Double co2EqMsConsumidaGramo = formatearDecimales(co2EqDiaGramo / cmsActual, CANTIDAD_DECIMALES);
+		Double co2EqLgcGramo = formatearDecimales(co2EqDiaGramo / fcm, CANTIDAD_DECIMALES);
+
+		// GASES DE ORIGEN ENTÉRICO
+		emisionGeiDto.setMetanoDiaLitro(metanoDiaLitro);
+		emisionGeiDto.setMetanoDiaGramo(metanoDiaGramo);
+		emisionGeiDto.setMetanoMsConsumidaLitro(metanoMsConsumidaLitro);
+		emisionGeiDto.setMetanoMsConsumidoGramo(metanoMsConsumidaGramo);
+		emisionGeiDto.setMetanoLcgLitro(metanoLcgLitro);
+		emisionGeiDto.setMetanoLcgGramo(metanoLcgGramo);
+		emisionGeiDto.setMetanoFactorEmision(metanoFactorEmision);
+		emisionGeiDto.setMetanoYm(metanoYm);
+		emisionGeiDto.setDioxidoCarbonoDiaGramo(dioxidoCarbonoDiaGramo);
+		emisionGeiDto.setDioxidoCarbonoDiaLitro(dioxidoCarbonoDiaLitro);
+		emisionGeiDto.setDioxidoCarbonoMsConsumidoGramo(dioxidoCarbonoMsConsumidoGramo);
+		emisionGeiDto.setDioxidoCarbonoMsConsumidoLitro(dioxidoCarbonoMsConsumidoLitro);
+		emisionGeiDto.setDioxidoCarbonoLcgGramo(dioxidoCarbonoLgcGramo);
+		emisionGeiDto.setDioxidoCarbonoLcgLitro(dioxidoCarbonoLcgLitro);
+		emisionGeiDto.setDioxidoCarbonoFactorEmision(dioxidoCarbonoFactorEmision);
+		emisionGeiDto.setDioxidoCarbonoEqDiaGramo(dioxidoCarbonoEqDiaGramo);
+		emisionGeiDto.setDioxidoCarbonoEqMsConsumidoGramo(dioxidoCarbonoEqMsConsumidoGramo);
+		emisionGeiDto.setDioxidoCarbonoEqLcgGramo(dioxidoCarbonoEqLcgGramo);
+		emisionGeiDto.setDioxidoCarbonoEqFactorEmision(dioxidoCarbonoEqFactorEmision);
+
+		// GASES DESDE LAS EXCRETAS EN EL SUELO
+		emisionGeiDto.setMetanoExcretaFactorEmision(metanoExcretaFactorEmision);
+		emisionGeiDto.setMetanoDiaExcretaGramo(metanoDiaExcretaGramo);
+		emisionGeiDto.setMetanoMsConsumidoExcretaGramo(metanoMsConsumidoExcretaGramo);
+		emisionGeiDto.setMetanoLcgExcretaGramo(metanoLcgExcretaGramo);
+		emisionGeiDto.setDioxidoCarbonoExcretaFactorEmision(dioxidoCarbonoExcretaFactorEmision);
+		emisionGeiDto.setDioxidoCarbonoExcretaDiaGramo(dioxidoCarbonoExcretaDiaGramo);
+		emisionGeiDto.setDioxidoCarbonoExcretaMsConsumidoGramo(dioxidoCarbonoExcretaMsConsumidoGramo);
+		emisionGeiDto.setDioxidoCarbonoExcretaLgcGramo(dioxidoCarbonoExcretaLgcGramo);
+		emisionGeiDto.setOxidoNitrosoFactorEmision(oxidoNitrosoFactorEmision);
+		emisionGeiDto.setOxidoNitrosoDiaGramo(oxidoNitrosoDiaGramo);
+		emisionGeiDto.setOxidoNitrosoMsConsumidoGramo(oxidoNitrosoMsConsumidoGramo);
+		emisionGeiDto.setOxidoNitrosoLcgGramo(oxidoNitrosoLcgGramo);
+		emisionGeiDto.setCo2FactorEmision(co2FactorEmision);
+		emisionGeiDto.setCo2EqDiaGramo(co2EqDiaGramo);
+		emisionGeiDto.setCo2EqMsConsumidaGramo(co2EqMsConsumidaGramo);
+		emisionGeiDto.setCo2EqLgcGramo(co2EqLgcGramo);
+		return emisionGeiDto;
 	}
 
 	private static Double formatearDecimales(Double numero, Integer numeroDecimales) {
