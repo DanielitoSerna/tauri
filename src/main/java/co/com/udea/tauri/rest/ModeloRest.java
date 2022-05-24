@@ -28,4 +28,18 @@ public class ModeloRest {
 				HttpStatus.OK);
 	}
 
+	@PostMapping(path = "/relacionCostoBeneficio", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> relacionCostoBeneficio(@RequestBody DatoCalculoDto datoCalculoDto) {
+		return new ResponseEntity<>(
+				modeloService.calcularRelacionBeneficio(datoCalculoDto.getEntradaDto(), datoCalculoDto.getDietaDtos()),
+				HttpStatus.OK);
+	}
+
+	@PostMapping(path = "/emisionGei", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> emisionGei(@RequestBody DatoCalculoDto datoCalculoDto) {
+		return new ResponseEntity<>(
+				modeloService.calcularEmisionGei(datoCalculoDto.getEntradaDto(), datoCalculoDto.getDietaDtos()),
+				HttpStatus.OK);
+	}
+
 }
