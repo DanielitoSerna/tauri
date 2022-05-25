@@ -32,8 +32,10 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
 import co.com.udea.tauri.dtos.DietaDto;
+import co.com.udea.tauri.dtos.EmisionGeiDto;
 import co.com.udea.tauri.dtos.EntradaDto;
 import co.com.udea.tauri.dtos.ModeloDto;
+import co.com.udea.tauri.dtos.RelacionBeneficioCostoDto;
 import co.com.udea.tauri.services.impl.DietaService;
 import co.com.udea.tauri.services.impl.EntradaService;
 import co.com.udea.tauri.services.impl.ModeloService;
@@ -43,6 +45,9 @@ import co.com.udea.tauri.services.impl.ModeloService;
 @CrossOrigin(origins = "*")
 public class ReporteRest {
 
+	private static final String CO2_KG_LCG4_0 = "CO2/kg LCG4.0%";
+	private static final String CO2_KG_MS_CONSUMIDA = "CO2/kg MS consumida";
+	private static final String CO2_DIA = "CO2/día";
 	private static final String FACTOR_DE_EMISIÓN_KG_ANIMAL = "Factor de emisión (kg/animal/año)";
 	private static final String CH4_KG_LCG4_0 = "CH4/kg LCG4.0%";
 	private static final String CH4_KG_MS_CONSUMIDA = "CH4/kg MS consumida";
@@ -80,6 +85,7 @@ public class ReporteRest {
 		table.addCell(crearCelda("Cantidad (kg MS/día)", "N", false, true, false));
 		table.addCell(crearCelda("Cantidad como ofrecido (kg/día)", "N", false, true, false));
 		table.addCell(crearCelda("Precio ($/kg MS alimento)", "N", false, true, false));
+		table.addCell(crearCelda("Precio ($/kg alimento, como ofrecido)", "N", false, true, false));
 	}
 
 	private void crearBalanceHeader(PdfPTable table) {
@@ -105,12 +111,13 @@ public class ReporteRest {
 		if(litros) {
 			table.addCell(crearCelda(label, "N", false, true, false));
 			table.addCell(crearCelda("Gramos", "N", false, true, false));
+			table.addCell(crearCelda("Litros", "N", false, true, false));
 		} else {
 			PdfPCell cell = crearCelda(label, "N", false, true, false);
 			cell.setColspan(2);
 			table.addCell(cell);
+			table.addCell(crearCelda("Gramos", "N", false, true, false));
 		}
-		table.addCell(crearCelda("Litros", "N", false, true, false));
 	}
 	
 	private void crearEmisionValue(PdfPTable table, String label, String gramos, String litros, boolean fila) {
@@ -144,9 +151,17 @@ public class ReporteRest {
 			table.addCell(crearCelda(format.format(dietaDto.getCantidad()), "N", true, false, contador % 2 == 0));
 			table.addCell(crearCelda(format.format(dietaDto.getCantidadOfrecido()), "N", true, false, contador % 2 == 0));
 			table.addCell(crearCelda("$ " + format.format(dietaDto.getPrecio()), "N", true, false, contador % 2 == 0));
+			
+			if(dietaDto.getBiblioteca().getMs() != null) {
+				double precio = dietaDto.getPrecio() * (dietaDto.getBiblioteca().getMs() / 100);
+				table.addCell(crearCelda("$ " + format.format(precio), "N", true, false, contador % 2 == 0));
+			} else {
+				table.addCell(crearCelda("$ 0,00", "N", true, false, contador % 2 == 0));
+			}
+			
 			contador += 1;
 			sumaCantidad += dietaDto.getCantidad();
-			sumaPrecio += dietaDto.getPrecio();
+			sumaPrecio += (dietaDto.getPrecio() * dietaDto.getCantidad());
 			if("Forraje".equals(dietaDto.getBiblioteca().getTipo())) {
 				sumaForraje += dietaDto.getCantidad();
 			} else {
@@ -155,7 +170,7 @@ public class ReporteRest {
 		}
 		
 		PdfPCell cell = crearCelda(" ", "", false, true, false);
-		cell.setColspan(5);
+		cell.setColspan(6);
 		table.addCell(cell);
 		
 		cell = crearCelda("Consumo de materia seca actual (CMSact)", "", false, true, false);
@@ -163,7 +178,7 @@ public class ReporteRest {
 		table.addCell(cell);
 		
 		cell = crearCelda("Consumo de materia seca predicho (kg MS/día)", "", false, true, false);
-		cell.setColspan(3);
+		cell.setColspan(4);
 		table.addCell(cell);
 		
 		cell = crearCelda("CMSact (kg MS/día)", "", false, false, true);
@@ -173,7 +188,7 @@ public class ReporteRest {
 		table.addCell(cell);
 		
 		cell = crearCelda("NRC (2001)", "", false, false, true);
-		cell.setColspan(2);
+		cell.setColspan(3);
 		table.addCell(cell);
 		
 		cell = crearCelda(format.format(11.25), "", true, false, true);
@@ -186,7 +201,7 @@ public class ReporteRest {
 		table.addCell(cell);
 		
 		cell = crearCelda("NRC (2021) - Efectos animales", "", false, false, false);
-		cell.setColspan(2);
+		cell.setColspan(3);
 		table.addCell(cell);
 		
 		cell = crearCelda(format.format(16.67), "", true, false, false);
@@ -199,7 +214,7 @@ public class ReporteRest {
 		table.addCell(cell);
 		
 		cell = crearCelda("TAURI", "", false, false, true);
-		cell.setColspan(2);
+		cell.setColspan(3);
 		table.addCell(cell);
 		
 		cell = crearCelda(format.format(20.91), "", true, false, true);
@@ -380,8 +395,49 @@ public class ReporteRest {
 		crearDieta(idReporte, document);
 		crearBalance(document);
 		crearEmision(document);
+		crearBeneficio(document);
 
 		document.close();
+	}
+
+	private void crearBeneficio(Document document) {
+		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
+		decimalFormatSymbols.setDecimalSeparator(',');
+		decimalFormatSymbols.setGroupingSeparator('.');
+		DecimalFormat format = new DecimalFormat(FORMAT_NUMBER, decimalFormatSymbols);
+		
+		document.add(crearTitulo("Relación beneficio - costo", 15, ALIGN_CENTER, true));
+		
+		RelacionBeneficioCostoDto relacion = modeloService.calcularRelacionBeneficio(entradaDto, dieta);
+		
+		PdfPTable table = new PdfPTable(2);
+		table.setWidthPercentage(100f);
+		table.setWidths(new float[] {2f, 1f});
+		table.setSpacingBefore(10);
+		
+		table.addCell(crearCelda("Eficiencia alimenticia (L/Kg MS)", "N", false, false, true));
+		table.addCell(crearCelda(format.format(relacion.getEficienciaAlimentica()), "N", true, false, true));
+		
+		table.addCell(crearCelda("Costo de la dieta ($/kg MS)", "N", false, false, false));
+		table.addCell(crearCelda(format.format(relacion.getCostoDieta()), "N", true, false, false));
+		
+		table.addCell(crearCelda("Costo/L leche", "N", false, false, true));
+		table.addCell(crearCelda(format.format(relacion.getCostoLitroLeche()), "N", true, false, true));
+		
+		PdfPCell cell = crearCelda(" ", "", false, false, false);
+		cell.setColspan(2);
+		table.addCell(cell);
+		
+		table.addCell(crearCelda("Margen de utilidad bruta ($/L leche)", "N", false, false, true));
+		table.addCell(crearCelda(format.format(relacion.getMargenUtilidadBruta()), "N", true, false, true));
+		
+		table.addCell(crearCelda("Margen porcentual (%)", "N", false, false, false));
+		table.addCell(crearCelda(format.format(relacion.getMargenPorcentual()), "N", true, false, false));
+		
+		table.addCell(crearCelda("Relación precio de venta/Costo de alimentación", "N", false, false, true));
+		table.addCell(crearCelda(format.format(relacion.getRelacionPrecioVentaCostoAlimentacion()), "N", true, false, true));
+		
+		document.add(table);
 	}
 
 	private void crearInformacionGeneral(Document document,Integer idReporte) {
@@ -508,9 +564,17 @@ public class ReporteRest {
 	}
 	
 	private void crearEmision(Document document) {
+		
+		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
+		decimalFormatSymbols.setDecimalSeparator(',');
+		decimalFormatSymbols.setGroupingSeparator('.');
+		DecimalFormat format = new DecimalFormat(FORMAT_NUMBER, decimalFormatSymbols);
+		
 		document.add(crearTitulo("Emisión GEI", 15, ALIGN_CENTER, true));
 		
 		document.add(crearTitulo("Gases de origen entérico", 12, ALIGN_CENTER, true));
+		
+		EmisionGeiDto emisionGeiDto = modeloService.calcularEmisionGei(entradaDto, dieta);
 
 		PdfPTable table = new PdfPTable(3);
 		table.setWidthPercentage(100f);
@@ -518,31 +582,31 @@ public class ReporteRest {
 		table.setSpacingBefore(10);
 
 		crearEmisionHeader(table, "METANO (CH4)", true);
-		crearEmisionValue(table, CH4_DIA, "287.83", "401,44", true);
-		crearEmisionValue(table, CH4_KG_MS_CONSUMIDA, "287.83", "401,44", false);
-		crearEmisionValue(table, CH4_KG_LCG4_0, "287.83", "401,44", true);
-		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, "401,44", false);
-		crearEmisionValue(table, "Ym (Energía bruta perdida en forma de metano, %)", null, "401,44", true);
+		crearEmisionValue(table, CH4_DIA, format.format(emisionGeiDto.getMetanoDiaGramo()), format.format(emisionGeiDto.getMetanoDiaLitro()), true);
+		crearEmisionValue(table, CH4_KG_MS_CONSUMIDA, format.format(emisionGeiDto.getMetanoMsConsumidoGramo()), format.format(emisionGeiDto.getMetanoMsConsumidaLitro()), false);
+		crearEmisionValue(table, CH4_KG_LCG4_0, format.format(emisionGeiDto.getMetanoLcgGramo()), format.format(emisionGeiDto.getMetanoLcgLitro()), true);
+		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, format.format(emisionGeiDto.getMetanoFactorEmision()), "", false);
+		crearEmisionValue(table, "Ym (Energía bruta perdida en forma de metano, %)", format.format(emisionGeiDto.getMetanoYm()), "", true);
 		
 		PdfPCell cell = crearCelda(" ", "", false, false, false);
 		cell.setColspan(3);
 		table.addCell(cell);
 		
 		crearEmisionHeader(table, "DIÓXIDO DE CARBONO (CO2)", true);
-		crearEmisionValue(table, CH4_DIA, "287.83", "401,44", true);
-		crearEmisionValue(table, CH4_KG_MS_CONSUMIDA, "287.83", "401,44", false);
-		crearEmisionValue(table, CH4_KG_LCG4_0, "287.83", "401,44", true);
-		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, "401,44", false);
+		crearEmisionValue(table, CO2_DIA, format.format(emisionGeiDto.getDioxidoCarbonoDiaGramo()), format.format(emisionGeiDto.getDioxidoCarbonoDiaLitro()), true);
+		crearEmisionValue(table, CO2_KG_MS_CONSUMIDA, format.format(emisionGeiDto.getDioxidoCarbonoMsConsumidoGramo()), format.format(emisionGeiDto.getDioxidoCarbonoMsConsumidoLitro()), false);
+		crearEmisionValue(table, CO2_KG_LCG4_0, format.format(emisionGeiDto.getDioxidoCarbonoLcgGramo()), format.format(emisionGeiDto.getDioxidoCarbonoLcgLitro()), true);
+		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, format.format(emisionGeiDto.getDioxidoCarbonoFactorEmision()), "", false);
 		
 		cell = crearCelda(" ", "", false, false, false);
 		cell.setColspan(3);
 		table.addCell(cell);
 		
 		crearEmisionHeader(table, "DIÓXIDO DE CARBONO EQUIVALENTE (CO2eq)", false);
-		crearEmisionValue(table, CH4_DIA, "287.83", "401,44", true);
-		crearEmisionValue(table, CH4_KG_MS_CONSUMIDA, "287.83", "401,44", false);
-		crearEmisionValue(table, CH4_KG_LCG4_0, "287.83", "401,44", true);
-		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, "401,44", false);
+		crearEmisionValue(table, CO2_DIA, null, format.format(emisionGeiDto.getDioxidoCarbonoEqDiaGramo()), true);
+		crearEmisionValue(table, CO2_KG_MS_CONSUMIDA, null, format.format(emisionGeiDto.getDioxidoCarbonoEqMsConsumidoGramo()), false);
+		crearEmisionValue(table, CO2_KG_LCG4_0, null, format.format(emisionGeiDto.getDioxidoCarbonoEqLcgGramo()), true);
+		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, format.format(emisionGeiDto.getDioxidoCarbonoEqFactorEmision()), false);
 		
 		document.add(table);
 		
@@ -554,30 +618,40 @@ public class ReporteRest {
 		table.setSpacingBefore(10);
 
 		crearEmisionHeader(table, "METANO (CH4)", false);
-		crearEmisionValue(table, CH4_DIA, null, "401,44", true);
-		crearEmisionValue(table, CH4_KG_MS_CONSUMIDA, null, "401,44", false);
-		crearEmisionValue(table, CH4_KG_LCG4_0, null, "401,44", true);
-		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, "401,44", false);
+		crearEmisionValue(table, CH4_DIA, null, format.format(emisionGeiDto.getMetanoDiaExcretaGramo()), true);
+		crearEmisionValue(table, CH4_KG_MS_CONSUMIDA, null, format.format(emisionGeiDto.getMetanoMsConsumidoExcretaGramo()), false);
+		crearEmisionValue(table, CH4_KG_LCG4_0, null, format.format(emisionGeiDto.getMetanoLcgExcretaGramo()), true);
+		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, format.format(emisionGeiDto.getMetanoExcretaFactorEmision()), false);
 		
 		cell = crearCelda(" ", "", false, false, false);
 		cell.setColspan(3);
 		table.addCell(cell);
 		
 		crearEmisionHeader(table, "DIÓXIDO DE CARBONO (CO2)", false);
-		crearEmisionValue(table, CH4_DIA, null, "287.83", true);
-		crearEmisionValue(table, CH4_KG_MS_CONSUMIDA, null, "401,44", false);
-		crearEmisionValue(table, CH4_KG_LCG4_0, null, "287.83", true);
-		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, "401,44", false);
+		crearEmisionValue(table, CO2_DIA, null, format.format(emisionGeiDto.getDioxidoCarbonoExcretaDiaGramo()), true);
+		crearEmisionValue(table, CO2_KG_MS_CONSUMIDA, null, format.format(emisionGeiDto.getDioxidoCarbonoExcretaMsConsumidoGramo()), false);
+		crearEmisionValue(table, CO2_KG_LCG4_0, null, format.format(emisionGeiDto.getDioxidoCarbonoExcretaLgcGramo()), true);
+		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, format.format(emisionGeiDto.getDioxidoCarbonoExcretaFactorEmision()), false);
 		
 		cell = crearCelda(" ", "", false, false, false);
 		cell.setColspan(3);
 		table.addCell(cell);
 		
 		crearEmisionHeader(table, "DIÓXIDO DE CARBONO EQUIVALENTE (CO2eq)", false);
-		crearEmisionValue(table, CH4_DIA, null, "401,44", true);
-		crearEmisionValue(table, CH4_KG_MS_CONSUMIDA, null, "401,44", false);
-		crearEmisionValue(table, CH4_KG_LCG4_0, null, "401,44", true);
-		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, "401,44", false);
+		crearEmisionValue(table, CO2_DIA, null, format.format(emisionGeiDto.getCo2EqDiaGramo()), true);
+		crearEmisionValue(table, CO2_KG_MS_CONSUMIDA, null, format.format(emisionGeiDto.getCo2EqMsConsumidaGramo()), false);
+		crearEmisionValue(table, CO2_KG_LCG4_0, null, format.format(emisionGeiDto.getCo2EqLgcGramo()), true);
+		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, format.format(emisionGeiDto.getCo2FactorEmision()), false);
+		
+		cell = crearCelda(" ", "", false, false, false);
+		cell.setColspan(3);
+		table.addCell(cell);
+		
+		crearEmisionHeader(table, "ÓXIDO NITROSO (N2O)", false);
+		crearEmisionValue(table, "N2O/día", null, format.format(emisionGeiDto.getOxidoNitrosoDiaGramo()), true);
+		crearEmisionValue(table, "N2O/kg MS consumida", null, format.format(emisionGeiDto.getOxidoNitrosoMsConsumidoGramo()), false);
+		crearEmisionValue(table, "N2O/kg LCG4.0%", null, format.format(emisionGeiDto.getOxidoNitrosoLcgGramo()), true);
+		crearEmisionValue(table, FACTOR_DE_EMISIÓN_KG_ANIMAL, null, format.format(emisionGeiDto.getOxidoNitrosoFactorEmision()), false);
 		
 		document.add(table);		
 		
@@ -586,9 +660,9 @@ public class ReporteRest {
 	private void crearDieta(Integer idReporte, Document document) {
 		document.add(crearTitulo("Dieta", 15, ALIGN_CENTER, true));
 		
-		PdfPTable table = new PdfPTable(5);
+		PdfPTable table = new PdfPTable(6);
 		table.setWidthPercentage(100f);
-		table.setWidths(new float[] { 4.5f, 3f, 2f, 2f, 2f });
+		table.setWidths(new float[] { 4.5f, 3f, 2f, 2f, 2f, 2f });
 		table.setSpacingBefore(10);
 
 		crearDietaHeader(table);
