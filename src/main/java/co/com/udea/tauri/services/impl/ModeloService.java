@@ -830,15 +830,18 @@ public class ModeloService implements IModeloService {
 				Double fraccionB = biblioteca.getFraccionB() != null ? biblioteca.getFraccionB() : 0.0;
 				Double kdFraccionB = biblioteca.getKdFraccionB() != null ? biblioteca.getKdFraccionB() : 0.0;
 				Double fraccionA = biblioteca.getFraccionA() != null ? biblioteca.getFraccionA() : 0.0;
+				Double fda = biblioteca.getFda() != null ? biblioteca.getFda() : 0.0;
+				Double pbBiblioteca = biblioteca.getPb() != null ? biblioteca.getPb() : 0.0;
+				Double almidon = biblioteca.getAlmidon() != null ? biblioteca.getAlmidon() : 0.0;
 				if ("Forraje".equals(biblioteca.getTipo())) {
 					cmsForraje = cmsForraje + dietaDto.getCantidad();
 				} else {
 					cmsConcentrado = cmsConcentrado + dietaDto.getCantidad();
 				}
-				sumaFdn = sumaFdn + biblioteca.getFdn();
-				sumaFda = sumaFda + biblioteca.getFda();
-				sumaPb = sumaPb + biblioteca.getPb();
-				sumaAlmidon = sumaAlmidon + biblioteca.getAlmidon();
+				sumaFdn = sumaFdn + fdn;
+				sumaFda = sumaFda + fda;
+				sumaPb = sumaPb + pbBiblioteca;
+				sumaAlmidon = sumaAlmidon + almidon;
 				cpIntake = formatearDecimales(dietaDto.getCantidad() * fdn / 100 * 1000, CANTIDAD_DECIMALES);
 				if (new Double(0).equals(dietaDto.getCantidad())) {
 					porcentajeRdp = 0.0;
