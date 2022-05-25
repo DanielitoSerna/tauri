@@ -405,15 +405,20 @@ public class ModeloService implements IModeloService {
 				if (entradaDto.getNumeroParto() == 0) {
 					rupDigestible = 0.0;
 				} else {
+					Double fraccionB = biblioteca.getFraccionB() != null ? biblioteca.getFraccionB() : 0.0;
+					Double fraccionC = biblioteca.getFraccionC() != null ? biblioteca.getFraccionC() : 0.0;
+					Double kdFraccionB = biblioteca.getKdFraccionB() != null ? biblioteca.getKdFraccionB() : 0.0;
+					Double digestibilidadPndr = biblioteca.getDigestibilidadPndr() != null
+							? biblioteca.getDigestibilidadPndr()
+							: 0.0;
 					if ("Forraje".equals(biblioteca.getTipo())) {
-						rupDigestible = formatearDecimales((biblioteca.getFraccionB()
-								* (kpOfWetForage / (kpOfWetForage + biblioteca.getKdFraccionB()))
-								+ biblioteca.getFraccionC()), CANTIDAD_DECIMALES);
+						rupDigestible = formatearDecimales(
+								(fraccionB * (kpOfWetForage / (kpOfWetForage + kdFraccionB)) + fraccionC),
+								CANTIDAD_DECIMALES);
 					} else {
 						rupDigestible = formatearDecimales(
-								(biblioteca.getFraccionB()
-										* (kpOfConcentrate / (kpOfConcentrate + biblioteca.getKdFraccionB()))
-										+ biblioteca.getFraccionC()) * (biblioteca.getDigestibilidadPndr() / 100),
+								(fraccionB * (kpOfConcentrate / (kpOfConcentrate + kdFraccionB)) + fraccionC)
+										* (digestibilidadPndr / 100),
 								CANTIDAD_DECIMALES);
 					}
 				}
@@ -543,7 +548,7 @@ public class ModeloService implements IModeloService {
 		for (DietaDto dietaDto : dietaDtos) {
 			cmsActual = cmsActual + dietaDto.getCantidad();
 			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
-			
+
 			if (biblioteca != null) {
 				Double pb = biblioteca.getPb() != null ? biblioteca.getPb() : 0.0;
 				Double fdn = biblioteca.getFdn() != null ? biblioteca.getFdn() : 0.0;
