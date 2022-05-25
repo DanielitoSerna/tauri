@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import co.com.udea.tauri.dtos.ConsumoMateriaSecaDto;
 import co.com.udea.tauri.dtos.DietaDto;
 import co.com.udea.tauri.dtos.EmisionGeiDto;
 import co.com.udea.tauri.dtos.EntradaDto;
@@ -261,7 +262,18 @@ public class ModeloService implements IModeloService {
 			fecalPhosphorous = formatearDecimales(1 * cmsActual, CANTIDAD_DECIMALES);
 		}
 
-		Double yEn = formatearDecimales(fcm * milkProd, CANTIDAD_DECIMALES);
+		Double milkEneg = 0.0;
+		if (entradaDto.getLactosa() == 0) {
+			milkEneg = formatearDecimales(
+					(0.0929 * entradaDto.getGrasa()) + (0.0547 * (milkTrueProtein / 0.93)) + 0.192, CANTIDAD_DECIMALES);
+		} else {
+			if (entradaDto.getLactosa() > 0) {
+				milkEneg = formatearDecimales((0.0929 * entradaDto.getGrasa()) + (0.0547 * (milkTrueProtein / 0.93))
+						+ (0.0395 * entradaDto.getLactosa()), CANTIDAD_DECIMALES);
+			}
+		}
+
+		Double yEn = formatearDecimales(milkEneg * milkProd, CANTIDAD_DECIMALES);
 
 		Double nePreg = formatearDecimales(
 				0.64 * ((((2 * 0.00159 * entradaDto.getDiasPrenez()) - 0.0352) * (cbw / 45)) / 0.14),
@@ -716,6 +728,55 @@ public class ModeloService implements IModeloService {
 		emisionGeiDto.setEmisionCo2EqAnioFecal(emisionCo2EqAnioFecal);
 		emisionGeiDto.setEmisionCo2EqAnioUrinario(emisionCo2EqAnioUrinario);
 		return emisionGeiDto;
+	}
+
+	@Override
+	public ConsumoMateriaSecaDto calcularConsumoMateriaSecaPredico(EntradaDto entradaDto) {
+		ConsumoMateriaSecaDto consumoMateriaSecaDto = new ConsumoMateriaSecaDto();
+
+		Double milkProd = formatearDecimales(entradaDto.getProduccionLeche() * MILK_PROD_CONSTANT, CANTIDAD_DECIMALES);
+		Double fcm = formatearDecimales(
+				(FCM_CONSTANT_DOUBLE * milkProd
+						+ FCM_CONSTANT_INTEGER * (milkProd * entradaDto.getGrasa() / CONSTANT_CIEN)),
+				CANTIDAD_DECIMALES);
+		Double wol = formatearDecimales(entradaDto.getDiasLeche() / WOL_CONSTANT, CANTIDAD_DECIMALES);
+		Double totalDmFeed = formatearDecimales(
+				(CONSTANT_TOTAL_DM_FEED * fcm + CONSTANT_TOTAL_DM_FEED_DOS
+						* Math.pow(entradaDto.getPesoCorporal(), CONSTANT_TOTAL_DM_FEED_TRES)
+						* (1 - Math.exp(CONSTANT_TOTAL_DM_FEED_CUATRO * (wol + CONSTANT_TOTAL_DM_FEED_CINCO)))),
+				CANTIDAD_DECIMALES);
+
+		Double tauri = formatearDecimales(0.0906 * (Math.pow(entradaDto.getPesoCorporal(), 0.75)) + 0.3515 * fcm,
+				CANTIDAD_DECIMALES);
+
+		Double milkTrueProtein = formatearDecimales(entradaDto.getProteinaCruda() * MILK_TRUE_PROTEIN_CONSTANT,
+				CANTIDAD_DECIMALES);
+		Double milkEneg = 0.0;
+		if (entradaDto.getLactosa() == 0) {
+			milkEneg = formatearDecimales(
+					(0.0929 * entradaDto.getGrasa()) + (0.0547 * (milkTrueProtein / 0.93)) + 0.192, CANTIDAD_DECIMALES);
+		} else {
+			if (entradaDto.getLactosa() > 0) {
+				milkEneg = formatearDecimales((0.0929 * entradaDto.getGrasa()) + (0.0547 * (milkTrueProtein / 0.93))
+						+ (0.0395 * entradaDto.getLactosa()), CANTIDAD_DECIMALES);
+			}
+		}
+
+		Double yEn = formatearDecimales(milkEneg * milkProd, CANTIDAD_DECIMALES);
+
+		Double parto = 0.0;
+		if (entradaDto.getNumeroParto() == 1) {
+			parto = 0.0;
+		} else
+			parto = 1.0;
+		Double nrcEfectoAnimal = formatearDecimales(((3.7 + (parto * 5.7)) + (0.305 * yEn) + (0.022 * entradaDto.getPesoCorporal())
+				+ (-0.689 + (parto * -1.87)) * entradaDto.getCondicionCorporal())
+				* (1 - (0.212 + (parto * 0.136)) * Math.exp(-0.053 * entradaDto.getDiasLeche())), CANTIDAD_DECIMALES);
+
+		consumoMateriaSecaDto.setNrc(totalDmFeed);
+		consumoMateriaSecaDto.setTuari(tauri);
+		consumoMateriaSecaDto.setNrcEfectosAnimales(nrcEfectoAnimal);
+		return consumoMateriaSecaDto;
 	}
 
 	private static Double formatearDecimales(Double numero, Integer numeroDecimales) {

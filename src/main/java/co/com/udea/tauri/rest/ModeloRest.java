@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import co.com.udea.tauri.dtos.DatoCalculoDto;
+import co.com.udea.tauri.dtos.EntradaDto;
 import co.com.udea.tauri.services.impl.ModeloService;
 
 @RestController
@@ -40,6 +41,11 @@ public class ModeloRest {
 		return new ResponseEntity<>(
 				modeloService.calcularEmisionGei(datoCalculoDto.getEntradaDto(), datoCalculoDto.getDietaDtos()),
 				HttpStatus.OK);
+	}
+
+	@PostMapping(path = "/consumoMateriaSecaPredicho", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> consumoMateriaSecaPredicho(@RequestBody EntradaDto entradaDto) {
+		return new ResponseEntity<>(modeloService.calcularConsumoMateriaSecaPredico(entradaDto), HttpStatus.OK);
 	}
 
 }

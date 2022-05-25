@@ -2,6 +2,7 @@ package co.com.udea.tauri.services;
 
 import java.util.List;
 
+import co.com.udea.tauri.dtos.ConsumoMateriaSecaDto;
 import co.com.udea.tauri.dtos.DietaDto;
 import co.com.udea.tauri.dtos.EmisionGeiDto;
 import co.com.udea.tauri.dtos.EntradaDto;
@@ -15,5 +16,7 @@ public interface IModeloService {
 	public RelacionBeneficioCostoDto calcularRelacionBeneficio(EntradaDto entradaDto, List<DietaDto>dietaDtos );
 	
 	public EmisionGeiDto calcularEmisionGei(EntradaDto entradaDto, List<DietaDto> dietaDtos);
+	
+	public ConsumoMateriaSecaDto calcularConsumoMateriaSecaPredico(EntradaDto entradaDto);
 
 }
