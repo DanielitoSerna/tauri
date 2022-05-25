@@ -26,11 +26,12 @@ import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
 import com.lowagie.text.html.WebColors;
-import com.lowagie.text.pdf.PdfCell;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 
+import co.com.udea.tauri.dtos.BalanceDto;
+import co.com.udea.tauri.dtos.ConsumoMateriaSecaDto;
 import co.com.udea.tauri.dtos.DietaDto;
 import co.com.udea.tauri.dtos.EmisionGeiDto;
 import co.com.udea.tauri.dtos.EntradaDto;
@@ -134,6 +135,7 @@ public class ReporteRest {
 
 	private void agregarAlimentos(PdfPTable table, Integer idReporte) {
 		dieta = dietaService.listarDieta(idReporte);
+		ConsumoMateriaSecaDto consumo = modeloService.calcularConsumoMateriaSecaPredico(entradaDto);
 
 		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
 		decimalFormatSymbols.setDecimalSeparator(',');
@@ -191,7 +193,7 @@ public class ReporteRest {
 		cell.setColspan(3);
 		table.addCell(cell);
 		
-		cell = crearCelda(format.format(11.25), "", true, false, true);
+		cell = crearCelda(format.format(consumo.getNrc()), "", true, false, true);
 		table.addCell(cell);
 		
 		cell = crearCelda("CMS de forraje (kg MS/día)", "", false, false, false);
@@ -204,7 +206,7 @@ public class ReporteRest {
 		cell.setColspan(3);
 		table.addCell(cell);
 		
-		cell = crearCelda(format.format(16.67), "", true, false, false);
+		cell = crearCelda(format.format(consumo.getNrcEfectosAnimales()), "", true, false, false);
 		table.addCell(cell);
 		
 		cell = crearCelda("CMS de concentrado (kg MS/día)", "", false, false, true);
@@ -217,7 +219,7 @@ public class ReporteRest {
 		cell.setColspan(3);
 		table.addCell(cell);
 		
-		cell = crearCelda(format.format(20.91), "", true, false, true);
+		cell = crearCelda(format.format(consumo.getTuari()), "", true, false, true);
 		table.addCell(cell);
 		
 		cell = crearCelda("Precio de la dieta ($/kg MS)", "", false, false, false);
@@ -551,6 +553,12 @@ public class ReporteRest {
 	}
 
 	private void crearBalance(Document document) {
+		
+		DecimalFormatSymbols decimalFormatSymbols = new DecimalFormatSymbols();
+		decimalFormatSymbols.setDecimalSeparator(',');
+		decimalFormatSymbols.setGroupingSeparator('.');
+		DecimalFormat format = new DecimalFormat(FORMAT_NUMBER, decimalFormatSymbols);
+		
 		document.add(crearTitulo("Balance", 15, ALIGN_CENTER, true));
 
 		PdfPTable table = new PdfPTable(7);
@@ -560,6 +568,39 @@ public class ReporteRest {
 
 		crearBalanceHeader(table);
 		agregarBalance(table);
+		document.add(table);
+		
+		BalanceDto balanceDto = modeloService.calcularBalance(entradaDto, dieta);
+		
+		table = new PdfPTable(2);
+		table.setWidthPercentage(100f);
+		table.setWidths(new float[] {2f, 1f});
+		table.setSpacingBefore(10);
+		
+		table.addCell(crearCelda("Forraje (% CMSact)", "", false, false, true));
+		table.addCell(crearCelda(format.format(balanceDto.getPorcentajeForraje()), "", true, false, true));
+		
+		table.addCell(crearCelda("Concentrado (% CMSact)", "", false, false, false));
+		table.addCell(crearCelda(format.format(balanceDto.getPorcentajeConcentrado()), "", true, false, false));
+		
+		table.addCell(crearCelda("FDN (% CMSact)", "", false, false, true));
+		table.addCell(crearCelda(format.format(balanceDto.getFdn()), "", true, false, true));
+		
+		table.addCell(crearCelda("FDA (% CMSact)", "", false, false, false));
+		table.addCell(crearCelda(format.format(balanceDto.getFda()), "", true, false, false));
+		
+		table.addCell(crearCelda("Almidón (% CMSact)", "", false, false, true));
+		table.addCell(crearCelda(format.format(balanceDto.getAlmidon()), "", true, false, true));
+		
+		table.addCell(crearCelda("PB (% CMSact)", "", false, false, false));
+		table.addCell(crearCelda(format.format(balanceDto.getPorcentajeForraje()), "", true, false, false));
+		
+		table.addCell(crearCelda("PDR (% PB)", "", false, false, true));
+		table.addCell(crearCelda(format.format(balanceDto.getPdr()), "", true, false, true));
+		
+		table.addCell(crearCelda("PNDR (% PB)", "", false, false, false));
+		table.addCell(crearCelda(format.format(balanceDto.getPndr()), "", true, false, false));
+		
 		document.add(table);
 	}
 	
