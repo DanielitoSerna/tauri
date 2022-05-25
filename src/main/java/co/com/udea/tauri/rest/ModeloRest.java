@@ -48,4 +48,11 @@ public class ModeloRest {
 		return new ResponseEntity<>(modeloService.calcularConsumoMateriaSecaPredico(entradaDto), HttpStatus.OK);
 	}
 
+	@PostMapping(path = "/calculoBalance", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> calculoBalance(@RequestBody DatoCalculoDto datoCalculoDto) {
+		return new ResponseEntity<>(
+				modeloService.calcularBalance(datoCalculoDto.getEntradaDto(), datoCalculoDto.getDietaDtos()),
+				HttpStatus.OK);
+	}
+
 }

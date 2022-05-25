@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import co.com.udea.tauri.dtos.BalanceDto;
 import co.com.udea.tauri.dtos.ConsumoMateriaSecaDto;
 import co.com.udea.tauri.dtos.DietaDto;
 import co.com.udea.tauri.dtos.EmisionGeiDto;
@@ -769,14 +770,119 @@ public class ModeloService implements IModeloService {
 			parto = 0.0;
 		} else
 			parto = 1.0;
-		Double nrcEfectoAnimal = formatearDecimales(((3.7 + (parto * 5.7)) + (0.305 * yEn) + (0.022 * entradaDto.getPesoCorporal())
-				+ (-0.689 + (parto * -1.87)) * entradaDto.getCondicionCorporal())
-				* (1 - (0.212 + (parto * 0.136)) * Math.exp(-0.053 * entradaDto.getDiasLeche())), CANTIDAD_DECIMALES);
+		Double nrcEfectoAnimal = formatearDecimales(
+				((3.7 + (parto * 5.7)) + (0.305 * yEn) + (0.022 * entradaDto.getPesoCorporal())
+						+ (-0.689 + (parto * -1.87)) * entradaDto.getCondicionCorporal())
+						* (1 - (0.212 + (parto * 0.136)) * Math.exp(-0.053 * entradaDto.getDiasLeche())),
+				CANTIDAD_DECIMALES);
 
 		consumoMateriaSecaDto.setNrc(totalDmFeed);
 		consumoMateriaSecaDto.setTuari(tauri);
 		consumoMateriaSecaDto.setNrcEfectosAnimales(nrcEfectoAnimal);
 		return consumoMateriaSecaDto;
+	}
+
+	@Override
+	public BalanceDto calcularBalance(EntradaDto entradaDto, List<DietaDto> dietaDtos) {
+		BalanceDto balanceDto = new BalanceDto();
+
+		Double cmsConcentrate = 0.0;
+		Double cmsActual = 0.0;
+		for (DietaDto dietaDto : dietaDtos) {
+			cmsActual = cmsActual + dietaDto.getCantidad();
+			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
+			if (biblioteca != null) {
+				if ("Concentrado".equals(biblioteca.getTipo())) {
+					cmsConcentrate = cmsConcentrate + dietaDto.getCantidad();
+				}
+			}
+		}
+
+		Double kpOfWetForage = formatearDecimales(
+				KP_OF_WET_FORAGE_CONSTANT
+						+ KP_OF_WET_FORAGE_CONSTANT_DOS * (cmsActual / entradaDto.getPesoCorporal() * CONSTANT_CIEN),
+				CANTIDAD_DECIMALES);
+		Double kpOfConcentrate = formatearDecimales(
+				KP_OF_WET_CONCENTRATE_CONSTANT
+						+ KP_OF_WET_CONCENTRATE_CONSTANT_DOS
+								* (cmsActual / entradaDto.getPesoCorporal() * CONSTANT_CIEN)
+						- KP_OF_WET_CONCENTRATE_CONSTANT_TRES * (cmsConcentrate / cmsActual * CONSTANT_CIEN),
+				CANTIDAD_DECIMALES);
+
+		cmsActual = 0.0;
+		Double cmsForraje = 0.0;
+		Double cmsConcentrado = 0.0;
+		Double sumaFdn = 0.0;
+		Double sumaFda = 0.0;
+		Double sumaPb = 0.0;
+		Double sumaAlmidon = 0.0;
+		Double sumaPdr = 0.0;
+		Double cpIntake = 0.0;
+		Double rdp = 0.0;
+		Double porcentajeRdp = 0.0;
+		Double pndr = 0.0;
+		Double sumaPndr = 0.0;
+		for (DietaDto dietaDto : dietaDtos) {
+			cmsActual = cmsActual + dietaDto.getCantidad();
+			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
+			if (biblioteca != null) {
+				Double fdn = biblioteca.getFdn() != null ? biblioteca.getFdn() : 0.0;
+				Double fraccionB = biblioteca.getFraccionB() != null ? biblioteca.getFraccionB() : 0.0;
+				Double kdFraccionB = biblioteca.getKdFraccionB() != null ? biblioteca.getKdFraccionB() : 0.0;
+				Double fraccionA = biblioteca.getFraccionA() != null ? biblioteca.getFraccionA() : 0.0;
+				if ("Forraje".equals(biblioteca.getTipo())) {
+					cmsForraje = cmsForraje + dietaDto.getCantidad();
+				} else {
+					cmsConcentrado = cmsConcentrado + dietaDto.getCantidad();
+				}
+				sumaFdn = sumaFdn + biblioteca.getFdn();
+				sumaFda = sumaFda + biblioteca.getFda();
+				sumaPb = sumaPb + biblioteca.getPb();
+				sumaAlmidon = sumaAlmidon + biblioteca.getAlmidon();
+				cpIntake = formatearDecimales(dietaDto.getCantidad() * fdn / 100 * 1000, CANTIDAD_DECIMALES);
+				if (new Double(0).equals(dietaDto.getCantidad())) {
+					porcentajeRdp = 0.0;
+				}
+				if ("Forraje".equals(biblioteca.getTipo())) {
+					porcentajeRdp = formatearDecimales(
+							fraccionA + (fraccionB * (kdFraccionB / (kdFraccionB + kpOfWetForage))),
+							CANTIDAD_DECIMALES);
+				} else {
+					if ("Concentrado".equals(biblioteca.getTipo())) {
+						porcentajeRdp = formatearDecimales(
+								fraccionA + (fraccionB * (kdFraccionB / (kdFraccionB + kpOfConcentrate))),
+								CANTIDAD_DECIMALES);
+					}
+				}
+
+				rdp = cpIntake * porcentajeRdp / 100;
+				sumaPdr = sumaPdr + rdp;
+
+				pndr = formatearDecimales(cpIntake * (100 - porcentajeRdp) / 100, CANTIDAD_DECIMALES);
+				sumaPndr = sumaPndr + pndr;
+			}
+		}
+		Double porcentajeForraje = formatearDecimales(cmsForraje / cmsActual * 100, CANTIDAD_DECIMALES);
+		Double porcentajeConcentrado = formatearDecimales(cmsConcentrado / cmsActual * 100, CANTIDAD_DECIMALES);
+		Double fdn = formatearDecimales(sumaFdn / cmsActual * 100, CANTIDAD_DECIMALES);
+		Double fda = formatearDecimales(sumaFda / cmsActual * 100, CANTIDAD_DECIMALES);
+		Double sumaPbDivido = formatearDecimales(sumaPb / 1000, CANTIDAD_DECIMALES);
+		Double pb = formatearDecimales(sumaPbDivido / cmsActual * 100, CANTIDAD_DECIMALES);
+		Double almidon = formatearDecimales(sumaAlmidon / cmsActual * 100, CANTIDAD_DECIMALES);
+		Double sumaPdrDivido = formatearDecimales(sumaPdr / 1000, CANTIDAD_DECIMALES);
+		Double pdr = formatearDecimales(((sumaPdrDivido / cmsActual * 100) / pb) * 100, CANTIDAD_DECIMALES);
+		Double sumaPndrDivido = formatearDecimales(sumaPndr / 1000, CANTIDAD_DECIMALES);
+		Double pndrBalance = formatearDecimales(((sumaPndrDivido / cmsActual * 100) / pb) * 100, CANTIDAD_DECIMALES);
+
+		balanceDto.setPorcentajeForraje(porcentajeForraje);
+		balanceDto.setPorcentajeConcentrado(porcentajeConcentrado);
+		balanceDto.setFdn(fdn);
+		balanceDto.setFda(fda);
+		balanceDto.setPb(pb);
+		balanceDto.setAlmidon(almidon);
+		balanceDto.setPdr(pdr);
+		balanceDto.setPndr(pndrBalance);
+		return balanceDto;
 	}
 
 	private static Double formatearDecimales(Double numero, Integer numeroDecimales) {
