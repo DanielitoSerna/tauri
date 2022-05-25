@@ -71,6 +71,22 @@ public class EmisionGeiDto {
 	public Double co2EqLgcGramo;
 	
 	public Double co2FactorEmision;
+	
+	public Double emisionMetanoAnioProduccionFecal;
+	
+	public Double emisionMetanoAnioProduccionUrinaria;
+	
+	public Double emisionCo2anioFecal;
+	
+	public Double emisionCo2anioUrinaria;
+	
+	public Double emisionN2oAnioFecal;
+	
+	public Double emisionN2oAnioUrinario;
+	
+	public Double emisionCo2EqAnioFecal;
+	
+	public Double emisionCo2EqAnioUrinario;
 
 	public Double getMetanoDiaLitro() {
 		return metanoDiaLitro;
@@ -351,5 +367,68 @@ public class EmisionGeiDto {
 	public void setCo2FactorEmision(Double co2FactorEmision) {
 		this.co2FactorEmision = co2FactorEmision;
 	}
-	
+
+	public Double getEmisionMetanoAnioProduccionFecal() {
+		return emisionMetanoAnioProduccionFecal;
+	}
+
+	public void setEmisionMetanoAnioProduccionFecal(Double emisionMetanoAnioProduccionFecal) {
+		this.emisionMetanoAnioProduccionFecal = emisionMetanoAnioProduccionFecal;
+	}
+
+	public Double getEmisionMetanoAnioProduccionUrinaria() {
+		return emisionMetanoAnioProduccionUrinaria;
+	}
+
+	public void setEmisionMetanoAnioProduccionUrinaria(Double emisionMetanoAnioProduccionUrinaria) {
+		this.emisionMetanoAnioProduccionUrinaria = emisionMetanoAnioProduccionUrinaria;
+	}
+
+	public Double getEmisionCo2anioFecal() {
+		return emisionCo2anioFecal;
+	}
+
+	public void setEmisionCo2anioFecal(Double emisionCo2anioFecal) {
+		this.emisionCo2anioFecal = emisionCo2anioFecal;
+	}
+
+	public Double getEmisionCo2anioUrinaria() {
+		return emisionCo2anioUrinaria;
+	}
+
+	public void setEmisionCo2anioUrinaria(Double emisionCo2anioUrinaria) {
+		this.emisionCo2anioUrinaria = emisionCo2anioUrinaria;
+	}
+
+	public Double getEmisionN2oAnioFecal() {
+		return emisionN2oAnioFecal;
+	}
+
+	public void setEmisionN2oAnioFecal(Double emisionN2oAnioFecal) {
+		this.emisionN2oAnioFecal = emisionN2oAnioFecal;
+	}
+
+	public Double getEmisionN2oAnioUrinario() {
+		return emisionN2oAnioUrinario;
+	}
+
+	public void setEmisionN2oAnioUrinario(Double emisionN2oAnioUrinario) {
+		this.emisionN2oAnioUrinario = emisionN2oAnioUrinario;
+	}
+
+	public Double getEmisionCo2EqAnioFecal() {
+		return emisionCo2EqAnioFecal;
+	}
+
+	public void setEmisionCo2EqAnioFecal(Double emisionCo2EqAnioFecal) {
+		this.emisionCo2EqAnioFecal = emisionCo2EqAnioFecal;
+	}
+
+	public Double getEmisionCo2EqAnioUrinario() {
+		return emisionCo2EqAnioUrinario;
+	}
+
+	public void setEmisionCo2EqAnioUrinario(Double emisionCo2EqAnioUrinario) {
+		this.emisionCo2EqAnioUrinario = emisionCo2EqAnioUrinario;
+	}	
 }

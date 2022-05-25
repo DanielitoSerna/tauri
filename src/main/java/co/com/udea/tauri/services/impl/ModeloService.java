@@ -676,6 +676,14 @@ public class ModeloService implements IModeloService {
 		emisionGeiDto.setCo2EqDiaGramo(co2EqDiaGramo);
 		emisionGeiDto.setCo2EqMsConsumidaGramo(co2EqMsConsumidaGramo);
 		emisionGeiDto.setCo2EqLgcGramo(co2EqLgcGramo);
+		emisionGeiDto.setEmisionMetanoAnioProduccionFecal(emisionMetanoAnioProduccionFecal);
+		emisionGeiDto.setEmisionMetanoAnioProduccionUrinaria(emisionMetanoAnioProduccionUrinaria);
+		emisionGeiDto.setEmisionCo2anioFecal(emisionCo2anioFecal);
+		emisionGeiDto.setEmisionCo2anioUrinaria(emisionCo2anioUrinaria);
+		emisionGeiDto.setEmisionN2oAnioFecal(emisionN2oAnioFecal);
+		emisionGeiDto.setEmisionN2oAnioUrinario(emisionN2oAnioUrinario);
+		emisionGeiDto.setEmisionCo2EqAnioFecal(emisionCo2EqAnioFecal);
+		emisionGeiDto.setEmisionCo2EqAnioUrinario(emisionCo2EqAnioUrinario);
 		return emisionGeiDto;
 	}
 
