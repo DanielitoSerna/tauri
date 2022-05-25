@@ -25,9 +25,6 @@ public class Entrada {
 	@Column(name = "nombre_reporte")
 	private String nombreReporte;
 	
-	@Column(name = "pais")
-	private String pais;
-	
 	@ManyToOne
 	@JoinColumn(name = "departamento", referencedColumnName = "codigo", nullable = false)
 	private Departamento departamento;
@@ -110,14 +107,6 @@ public class Entrada {
 
 	public void setNombreReporte(String nombreReporte) {
 		this.nombreReporte = nombreReporte;
-	}
-
-	public String getPais() {
-		return pais;
-	}
-
-	public void setPais(String pais) {
-		this.pais = pais;
 	}
 
 	public Departamento getDepartamento() {

@@ -6,6 +6,6 @@ import co.com.udea.tauri.dtos.DepartamentoDto;
 
 public interface IDepartamentoService {
 	
-	public List<DepartamentoDto> listarDepartamento();
+	public List<DepartamentoDto> listarDepartamento(Integer pais);
 
 }

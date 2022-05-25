@@ -21,7 +21,6 @@ public class MunicipioService implements IMunicipioService{
 
 	@Override
 	public List<MunicipioDto> obtenerMunicipios(Integer idDepartamento) {
-		// TODO Auto-generated method stub
 		List<Municipio> municipios = municipioRepository.findByIdDepartamento(idDepartamento);
 		return municipios.stream().map(this::convertToDto).collect(Collectors.toList());
 	}

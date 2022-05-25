@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import co.com.udea.tauri.services.impl.DepartamentoService;
 import co.com.udea.tauri.services.impl.MunicipioService;
+import co.com.udea.tauri.services.impl.PaisService;
 
 @RestController
 @RequestMapping("api")
@@ -22,11 +23,19 @@ public class CargaDatosRest {
 	private DepartamentoService departamentoService;
 	
 	@Autowired
+	private PaisService paisService;
+	
+	@Autowired
 	private MunicipioService municipioService;
 	
+	@GetMapping(path = "/paises", produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<?> obtenerPaises() {
+		return new ResponseEntity<>(paisService.listarPaises(), HttpStatus.OK);
+	}
+	
 	@GetMapping(path = "/departamentos", produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> obtenerDepartamentos() {
-		return new ResponseEntity<>(departamentoService.listarDepartamento(), HttpStatus.OK);
+	public ResponseEntity<?> obtenerDepartamentos(@RequestParam Integer idPais) {
+		return new ResponseEntity<>(departamentoService.listarDepartamento(idPais), HttpStatus.OK);
 	}
 	
 	@GetMapping(path = "/municipios", produces = MediaType.APPLICATION_JSON_VALUE)

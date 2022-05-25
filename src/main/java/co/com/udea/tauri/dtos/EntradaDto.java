@@ -8,8 +8,6 @@ public class EntradaDto {
 	
 	private String nombreReporte;
 	
-	private String pais;
-	
 	private Integer departamentoDto;
 	
 	private Integer municipioDto;
@@ -64,14 +62,6 @@ public class EntradaDto {
 
 	public void setId(Integer id) {
 		this.id = id;
-	}
-
-	public String getPais() {
-		return pais;
-	}
-
-	public void setPais(String pais) {
-		this.pais = pais;
 	}
 
 	public String getNombreReporte() {

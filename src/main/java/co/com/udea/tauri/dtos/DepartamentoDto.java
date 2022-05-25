@@ -5,6 +5,8 @@ public class DepartamentoDto {
 	private Integer id;
 	
 	private String nombreDepartamento;
+	
+	private PaisDto pais;
 
 	public Integer getId() {
 		return id;
@@ -21,5 +23,12 @@ public class DepartamentoDto {
 	public void setNombreDepartamento(String nombreDepartamento) {
 		this.nombreDepartamento = nombreDepartamento;
 	}
-	
+
+	public PaisDto getPais() {
+		return pais;
+	}
+
+	public void setPais(PaisDto paisDto) {
+		this.pais = paisDto;
+	}
 }

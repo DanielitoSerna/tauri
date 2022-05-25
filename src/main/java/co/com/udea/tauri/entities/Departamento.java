@@ -7,6 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -23,6 +25,10 @@ public class Departamento implements Serializable {
 	@Column(name = "departamento")
 	private String nombreDepartamento;
 	
+	@ManyToOne
+	@JoinColumn(name = "pais", referencedColumnName = "codigo", nullable = false)
+	private Pais pais;
+	
 	public Integer getId() {
 		return id;
 	}
@@ -38,5 +44,12 @@ public class Departamento implements Serializable {
 	public void setNombreDepartamento(String nombreDepartamento) {
 		this.nombreDepartamento = nombreDepartamento;
 	}
-	
+
+	public Pais getPais() {
+		return pais;
+	}
+
+	public void setPais(Pais pais) {
+		this.pais = pais;
+	}
 }

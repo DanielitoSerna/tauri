@@ -19,15 +19,14 @@ public class DepartamentoService implements IDepartamentoService {
 	private DepartamentoRepository departamentoRepository;
 	
 	@Override
-	public List<DepartamentoDto> listarDepartamento() {
-		List<Departamento> departamentos = departamentoRepository.findAllByOrderByNombreDepartamentoAsc();
+	public List<DepartamentoDto> listarDepartamento(Integer pais) {
+		List<Departamento> departamentos = departamentoRepository.findByIdPais(pais);
 		return departamentos.stream().map(this::convertToDto).collect(Collectors.toList());
 	}
 	
 	private DepartamentoDto convertToDto(Departamento departamento) {
 		ModelMapper modelMapper = new ModelMapper();
-		DepartamentoDto departamentoDto = modelMapper.map(departamento, DepartamentoDto.class);
-	    return departamentoDto;
+	    return modelMapper.map(departamento, DepartamentoDto.class);
 	}
 
 }
