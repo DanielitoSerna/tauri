@@ -60,8 +60,9 @@ public class ModeloService implements IModeloService {
 			cmsActual = cmsActual + dietaDto.getCantidad();
 			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
 			if (biblioteca != null) {
-				tdn = formatearDecimales((dietaDto.getCantidad() * (biblioteca.getEd() / 0.04409)) / CONSTANT_CIEN,
-						CANTIDAD_DECIMALES);
+				Double ed = biblioteca.getEd() != null ? biblioteca.getEd() : 0.0;
+				tdn = formatearDecimales((dietaDto.getCantidad() * (ed / 0.04409)) / CONSTANT_CIEN, CANTIDAD_DECIMALES);
+
 				sumaTdn = sumaTdn + tdn;
 				if ("Concentrado".equals(biblioteca.getTipo())) {
 					cmsConcentrate = cmsConcentrate + dietaDto.getCantidad();
@@ -96,20 +97,24 @@ public class ModeloService implements IModeloService {
 		for (DietaDto dietaDto : dietaDtos) {
 			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
 			if (biblioteca != null) {
-				cpIntake = formatearDecimales(dietaDto.getCantidad() * biblioteca.getFdn() / 100 * 1000,
-						CANTIDAD_DECIMALES);
+				Double fdn = biblioteca.getFdn() != null ? biblioteca.getFdn() : 0.0;
+				Double fraccionB = biblioteca.getFraccionB() != null ? biblioteca.getFraccionB() : 0.0;
+				Double kdFraccionB = biblioteca.getKdFraccionB() != null ? biblioteca.getKdFraccionB() : 0.0;
+				Double fraccionA = biblioteca.getFraccionA() != null ? biblioteca.getFraccionA() : 0.0;
+
+				cpIntake = formatearDecimales(dietaDto.getCantidad() * fdn / 100 * 1000, CANTIDAD_DECIMALES);
+
 				if (new Double(0).equals(dietaDto.getCantidad())) {
 					porcentajeRdp = 0.0;
 				}
 				if ("Forraje".equals(biblioteca.getTipo())) {
 					porcentajeRdp = formatearDecimales(
-							biblioteca.getFraccionA() + (biblioteca.getFraccionB()
-									* (biblioteca.getKdFraccionB() / (biblioteca.getKdFraccionB() + kpOfWetForage))),
+							fraccionA + (fraccionB * (kdFraccionB / (kdFraccionB + kpOfWetForage))),
 							CANTIDAD_DECIMALES);
 				} else {
 					if ("Concentrado".equals(biblioteca.getTipo())) {
-						porcentajeRdp = formatearDecimales(biblioteca.getFraccionA() + (biblioteca.getFraccionB()
-								* (biblioteca.getKdFraccionB() / (biblioteca.getKdFraccionB() + kpOfConcentrate))),
+						porcentajeRdp = formatearDecimales(
+								fraccionA + (fraccionB * (kdFraccionB / (kdFraccionB + kpOfConcentrate))),
 								CANTIDAD_DECIMALES);
 					}
 				}
@@ -370,16 +375,33 @@ public class ModeloService implements IModeloService {
 			Double productoCpIntakeRupDigestible = 0.0;
 			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
 			if (biblioteca != null) {
-				cpIntake = formatearDecimales(dietaDto.getCantidad() * biblioteca.getFdn() / 100 * 1000,
+				Double fdn = biblioteca.getFdn() != null ? biblioteca.getFdn() : 0.0;
+				Double porcentajeCa = biblioteca.getPorcentajeCa() != null ? biblioteca.getPorcentajeCa() : 0.0;
+				Double coeficienteAbsorcionCa = biblioteca.getCoeficienteAbsorcionCa() != null
+						? biblioteca.getCoeficienteAbsorcionCa()
+						: 0.0;
+				Double porcentajeP = biblioteca.getPorcentajeP() != null ? biblioteca.getPorcentajeP() : 0.0;
+				Double coeficienteAbsorcionP = biblioteca.getCoeficienteAbsorcionP() != null
+						? biblioteca.getCoeficienteAbsorcionP()
+						: 0.0;
+				Double porcentajeK = biblioteca.getPorcentajeK() != null ? biblioteca.getPorcentajeK() : 0.0;
+				Double coeficienteAbsorcionK = biblioteca.getCoeficienteAbsorcionK() != null
+						? biblioteca.getCoeficienteAbsorcionK()
+						: 0.0;
+				Double porcentajeMg = biblioteca.getPorcentajeMg() != null ? biblioteca.getPorcentajeMg() : 0.0;
+				Double coeficienteAbsorcionMg = biblioteca.getCoeficienteAbsorcionMg() != null
+						? biblioteca.getCoeficienteAbsorcionMg()
+						: 0.0;
+
+				cpIntake = formatearDecimales(dietaDto.getCantidad() * fdn / 100 * 1000, CANTIDAD_DECIMALES);
+				ca = formatearDecimales(((dietaDto.getCantidad() * porcentajeCa / 100) * 1000) * coeficienteAbsorcionCa,
 						CANTIDAD_DECIMALES);
-				ca = formatearDecimales(((dietaDto.getCantidad() * biblioteca.getPorcentajeCa() / 100) * 1000)
-						* biblioteca.getCoeficienteAbsorcionCa(), CANTIDAD_DECIMALES);
-				p = formatearDecimales(((dietaDto.getCantidad() * biblioteca.getPorcentajeP() / 100) * 1000)
-						* biblioteca.getCoeficienteAbsorcionP(), CANTIDAD_DECIMALES);
-				k = formatearDecimales(((dietaDto.getCantidad() * biblioteca.getPorcentajeK() / 100) * 1000)
-						* biblioteca.getCoeficienteAbsorcionK(), CANTIDAD_DECIMALES);
-				mg = formatearDecimales(((dietaDto.getCantidad() * biblioteca.getPorcentajeMg()) / 1000)
-						* biblioteca.getCoeficienteAbsorcionMg(), CANTIDAD_DECIMALES);
+				p = formatearDecimales(((dietaDto.getCantidad() * porcentajeP / 100) * 1000) * coeficienteAbsorcionP,
+						CANTIDAD_DECIMALES);
+				k = formatearDecimales(((dietaDto.getCantidad() * porcentajeK / 100) * 1000) * coeficienteAbsorcionK,
+						CANTIDAD_DECIMALES);
+				mg = formatearDecimales(((dietaDto.getCantidad() * porcentajeMg) / 1000) * coeficienteAbsorcionMg,
+						CANTIDAD_DECIMALES);
 				if (entradaDto.getNumeroParto() == 0) {
 					rupDigestible = 0.0;
 				} else {
@@ -521,17 +543,21 @@ public class ModeloService implements IModeloService {
 		for (DietaDto dietaDto : dietaDtos) {
 			cmsActual = cmsActual + dietaDto.getCantidad();
 			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
+			
 			if (biblioteca != null) {
+				Double pb = biblioteca.getPb() != null ? biblioteca.getPb() : 0.0;
+				Double fdn = biblioteca.getFdn() != null ? biblioteca.getFdn() : 0.0;
+				Double grasaCruda = biblioteca.getGrasaCruda() != null ? biblioteca.getGrasaCruda() : 0.0;
+				Double ceniza = biblioteca.getCeniza() != null ? biblioteca.getCeniza() : 0.0;
 				if (dietaDto.getCantidad() == 0) {
 					cnf = 0.0;
 				} else {
 					if (dietaDto.getCantidad() > 0) {
-						cnf = formatearDecimales((100 - (biblioteca.getPb() + biblioteca.getFdn()
-								+ biblioteca.getGrasaCruda() + biblioteca.getCeniza())), CANTIDAD_DECIMALES);
+						cnf = formatearDecimales((100 - (pb + fdn + grasaCruda + ceniza)), CANTIDAD_DECIMALES);
 					}
 				}
-				ge = formatearDecimales(((biblioteca.getPb() * 5.65) + (biblioteca.getGrasaCruda() * 9.4)
-						+ (biblioteca.getFdn() * 4.25) + (cnf * 4.15)) / 100, CANTIDAD_DECIMALES);
+				ge = formatearDecimales(((pb * 5.65) + (grasaCruda * 9.4) + (fdn * 4.25) + (cnf * 4.15)) / 100,
+						CANTIDAD_DECIMALES);
 			}
 			geProducto = dietaDto.getCantidad() * ge;
 			sumeGeProducto = sumeGeProducto + geProducto;
