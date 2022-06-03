@@ -520,7 +520,7 @@ public class ModeloService implements IModeloService {
 		Double sumaPrecioDieta = 0.0;
 		for (DietaDto dietaDto : dietaDtos) {
 			cmsActual = cmsActual + dietaDto.getCantidad();
-			Double precioUnidadDieta = dietaDto.getCantidad() * dietaDto.getCantidadOfrecido();
+			Double precioUnidadDieta = dietaDto.getCantidad() * dietaDto.getPrecio();
 			sumaPrecioDieta = sumaPrecioDieta + precioUnidadDieta;
 		}
 		Double eficienciaAlimentacia = formatearDecimales(entradaDto.getProduccionLeche() / cmsActual,
