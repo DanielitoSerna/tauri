@@ -20,15 +20,11 @@ import co.com.udea.tauri.services.IModeloService;
 public class ModeloService implements IModeloService {
 
 	private static final Double MW_JERSEY = 454.0, MW_HOLSTEIN = 680.0, CBW_CONSTANT = 0.06275;
-	private static final Double WOL_CONSTANT = 7.0, MILK_PROD_CONSTANT = 1.03, MILK_TRUE_PROTEIN_CONSTANT = 0.93;
-	private static final Double FCM_CONSTANT_DOUBLE = 0.4;
-	private static final Integer CANTIDAD_DECIMALES = 2, FCM_CONSTANT_INTEGER = 15, CONSTANT_CIEN = 100;
+	private static final Double MILK_TRUE_PROTEIN_CONSTANT = 0.93;
+	private static final Integer CANTIDAD_DECIMALES = 2;
 	private static final Double KP_OF_WET_FORAGE_CONSTANT = 3.054, KP_OF_WET_FORAGE_CONSTANT_DOS = 0.614;
 	private static final Double KP_OF_WET_CONCENTRATE_CONSTANT = 2.904, KP_OF_WET_CONCENTRATE_CONSTANT_DOS = 1.375;
 	private static final Double KP_OF_WET_CONCENTRATE_CONSTANT_TRES = 0.02;
-	private static final Double CONSTANT_TOTAL_DM_FEED = 0.372, CONSTANT_TOTAL_DM_FEED_DOS = 0.0968,
-			CONSTANT_TOTAL_DM_FEED_TRES = 0.75, CONSTANT_TOTAL_DM_FEED_CUATRO = -0.192,
-			CONSTANT_TOTAL_DM_FEED_CINCO = 3.67;
 	private static final Double CONSTANT_SCURF_REQUIREMENT = 0.3, CONSTANT_SCURF_REQUIREMENT_DOS = 0.6;
 
 	@Autowired
@@ -38,15 +34,13 @@ public class ModeloService implements IModeloService {
 	public ModeloDto calcularModelo(EntradaDto entradaDto, List<DietaDto> dietaDtos) {
 		ModeloDto modeloDto = new ModeloDto();
 
-		Double wol = formatearDecimales(entradaDto.getDiasLeche() / WOL_CONSTANT, CANTIDAD_DECIMALES);
-		Double milkProd = formatearDecimales(entradaDto.getProduccionLeche() * MILK_PROD_CONSTANT, CANTIDAD_DECIMALES);
+		Double wol = formatearDecimales(entradaDto.getDiasLeche() / 7, CANTIDAD_DECIMALES);
+		Double milkProd = formatearDecimales(entradaDto.getProduccionLeche() * 1.03, CANTIDAD_DECIMALES);
 		Double milkTrueProtein = formatearDecimales(entradaDto.getProteinaCruda() * MILK_TRUE_PROTEIN_CONSTANT,
 				CANTIDAD_DECIMALES);
-		Double fcm = formatearDecimales(
-				(FCM_CONSTANT_DOUBLE * milkProd
-						+ FCM_CONSTANT_INTEGER * (milkProd * entradaDto.getGrasa() / CONSTANT_CIEN)),
+		Double fcm = formatearDecimales((0.4 * milkProd + 15 * (milkProd * entradaDto.getGrasa() / 100)),
 				CANTIDAD_DECIMALES);
-		Double yprotn = formatearDecimales((milkProd * (milkTrueProtein / CONSTANT_CIEN)), 2);
+		Double yprotn = formatearDecimales((milkProd * (milkTrueProtein / 100)), 2);
 		Double cbw = 0.0;
 		if ("Jersey".equals(entradaDto.getRaza())) {
 			cbw = MW_JERSEY * CBW_CONSTANT;
@@ -63,7 +57,7 @@ public class ModeloService implements IModeloService {
 			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
 			if (biblioteca != null) {
 				Double ed = biblioteca.getEd() != null ? biblioteca.getEd() : 0.0;
-				tdn = formatearDecimales((dietaDto.getCantidad() * (ed / 0.04409)) / CONSTANT_CIEN, CANTIDAD_DECIMALES);
+				tdn = formatearDecimales((dietaDto.getCantidad() * (ed / 0.04409)) / 100, CANTIDAD_DECIMALES);
 
 				sumaTdn = sumaTdn + tdn;
 				if ("Concentrado".equals(biblioteca.getTipo())) {
@@ -71,25 +65,20 @@ public class ModeloService implements IModeloService {
 				}
 			}
 		}
-		Double tdnOriginal = formatearDecimales(((sumaTdn / cmsActual) * CONSTANT_CIEN), CANTIDAD_DECIMALES);
+		Double tdnOriginal = formatearDecimales(((sumaTdn / cmsActual) * 100), CANTIDAD_DECIMALES);
 		Double nel = formatearDecimales((tdnOriginal * 0.0245) - 0.12, CANTIDAD_DECIMALES);
 
 		Double kpOfWetForage = formatearDecimales(
 				KP_OF_WET_FORAGE_CONSTANT
-						+ KP_OF_WET_FORAGE_CONSTANT_DOS * (cmsActual / entradaDto.getPesoCorporal() * CONSTANT_CIEN),
+						+ KP_OF_WET_FORAGE_CONSTANT_DOS * (cmsActual / entradaDto.getPesoCorporal() * 100),
 				CANTIDAD_DECIMALES);
-		Double kpOfConcentrate = formatearDecimales(
-				KP_OF_WET_CONCENTRATE_CONSTANT
-						+ KP_OF_WET_CONCENTRATE_CONSTANT_DOS
-								* (cmsActual / entradaDto.getPesoCorporal() * CONSTANT_CIEN)
-						- KP_OF_WET_CONCENTRATE_CONSTANT_TRES * (cmsConcentrate / cmsActual * CONSTANT_CIEN),
-				CANTIDAD_DECIMALES);
+		Double kpOfConcentrate = formatearDecimales(KP_OF_WET_CONCENTRATE_CONSTANT
+				+ KP_OF_WET_CONCENTRATE_CONSTANT_DOS * (cmsActual / entradaDto.getPesoCorporal() * 100)
+				- KP_OF_WET_CONCENTRATE_CONSTANT_TRES * (cmsConcentrate / cmsActual * 100), CANTIDAD_DECIMALES);
 		Double cw = formatearDecimales((18 + ((entradaDto.getDiasPrenez() - 190) * 0.665)) * (cbw / 45),
 				CANTIDAD_DECIMALES);
-		Double totalDmFeed = formatearDecimales(
-				(CONSTANT_TOTAL_DM_FEED * fcm + CONSTANT_TOTAL_DM_FEED_DOS
-						* Math.pow(entradaDto.getPesoCorporal(), CONSTANT_TOTAL_DM_FEED_TRES)
-						* (1 - Math.exp(CONSTANT_TOTAL_DM_FEED_CUATRO * (wol + CONSTANT_TOTAL_DM_FEED_CINCO)))),
+		Double totalDmFeed = formatearDecimales((0.372 * fcm
+				+ 0.0968 * Math.pow(entradaDto.getPesoCorporal(), 0.75) * (1 - Math.exp(-0.192 * (wol + 3.67)))),
 				CANTIDAD_DECIMALES);
 		Double scurfRequirement = 0.0;
 		Double urinaryRequirement = 0.0;
@@ -580,10 +569,8 @@ public class ModeloService implements IModeloService {
 			geProducto = dietaDto.getCantidad() * ge;
 			sumeGeProducto = sumeGeProducto + geProducto;
 		}
-		Double milkProd = formatearDecimales(entradaDto.getProduccionLeche() * MILK_PROD_CONSTANT, CANTIDAD_DECIMALES);
-		Double fcm = formatearDecimales(
-				(FCM_CONSTANT_DOUBLE * milkProd
-						+ FCM_CONSTANT_INTEGER * (milkProd * entradaDto.getGrasa() / CONSTANT_CIEN)),
+		Double milkProd = formatearDecimales(entradaDto.getProduccionLeche() * 1.03, CANTIDAD_DECIMALES);
+		Double fcm = formatearDecimales((0.4 * milkProd + 15 * (milkProd * entradaDto.getGrasa() / 100)),
 				CANTIDAD_DECIMALES);
 
 		Double metanoDiaLitro = formatearDecimales(21.1284 * cmsActual, CANTIDAD_DECIMALES);
@@ -735,17 +722,14 @@ public class ModeloService implements IModeloService {
 	public ConsumoMateriaSecaDto calcularConsumoMateriaSecaPredico(EntradaDto entradaDto) {
 		ConsumoMateriaSecaDto consumoMateriaSecaDto = new ConsumoMateriaSecaDto();
 
-		Double milkProd = formatearDecimales(entradaDto.getProduccionLeche() * MILK_PROD_CONSTANT, CANTIDAD_DECIMALES);
-		Double fcm = formatearDecimales(
-				(FCM_CONSTANT_DOUBLE * milkProd
-						+ FCM_CONSTANT_INTEGER * (milkProd * entradaDto.getGrasa() / CONSTANT_CIEN)),
+		Double milkProd = formatearDecimales(entradaDto.getProduccionLeche() * 1.03, CANTIDAD_DECIMALES);
+		Double fcm = formatearDecimales((0.4 * milkProd + 15 * (milkProd * entradaDto.getGrasa() / 100)),
 				CANTIDAD_DECIMALES);
-		Double wol = formatearDecimales(entradaDto.getDiasLeche() / WOL_CONSTANT, CANTIDAD_DECIMALES);
-		Double totalDmFeed = formatearDecimales(
-				(CONSTANT_TOTAL_DM_FEED * fcm + CONSTANT_TOTAL_DM_FEED_DOS
-						* Math.pow(entradaDto.getPesoCorporal(), CONSTANT_TOTAL_DM_FEED_TRES)
-						* (1 - Math.exp(CONSTANT_TOTAL_DM_FEED_CUATRO * (wol + CONSTANT_TOTAL_DM_FEED_CINCO)))),
+		Double wol = formatearDecimales(entradaDto.getDiasLeche() / 7, CANTIDAD_DECIMALES);
+		Double totalDmFeed1 = formatearDecimales((0.372 * fcm + 0.0968 * Math.pow(entradaDto.getPesoCorporal(), 0.75)),
 				CANTIDAD_DECIMALES);
+		Double totalDmFeed2 = formatearDecimales((1 - Math.exp(-0.192 * (wol + 3.67))), CANTIDAD_DECIMALES);
+		Double totalDmFeed = formatearDecimales(totalDmFeed1 * totalDmFeed2, CANTIDAD_DECIMALES);
 
 		Double tauri = formatearDecimales(0.0906 * (Math.pow(entradaDto.getPesoCorporal(), 0.75)) + 0.3515 * fcm,
 				CANTIDAD_DECIMALES);
@@ -776,6 +760,11 @@ public class ModeloService implements IModeloService {
 						* (1 - (0.212 + (parto * 0.136)) * Math.exp(-0.053 * entradaDto.getDiasLeche())),
 				CANTIDAD_DECIMALES);
 
+		System.out.println("WOL > " + wol);
+		System.out.println("MILK PROD > " + milkProd);
+		System.out.println("FCM > " + fcm);
+		System.out.println(totalDmFeed1);
+		System.out.println(totalDmFeed2);
 		consumoMateriaSecaDto.setNrc(totalDmFeed);
 		consumoMateriaSecaDto.setTuari(tauri);
 		consumoMateriaSecaDto.setNrcEfectosAnimales(nrcEfectoAnimal);
@@ -800,14 +789,11 @@ public class ModeloService implements IModeloService {
 
 		Double kpOfWetForage = formatearDecimales(
 				KP_OF_WET_FORAGE_CONSTANT
-						+ KP_OF_WET_FORAGE_CONSTANT_DOS * (cmsActual / entradaDto.getPesoCorporal() * CONSTANT_CIEN),
+						+ KP_OF_WET_FORAGE_CONSTANT_DOS * (cmsActual / entradaDto.getPesoCorporal() * 100),
 				CANTIDAD_DECIMALES);
-		Double kpOfConcentrate = formatearDecimales(
-				KP_OF_WET_CONCENTRATE_CONSTANT
-						+ KP_OF_WET_CONCENTRATE_CONSTANT_DOS
-								* (cmsActual / entradaDto.getPesoCorporal() * CONSTANT_CIEN)
-						- KP_OF_WET_CONCENTRATE_CONSTANT_TRES * (cmsConcentrate / cmsActual * CONSTANT_CIEN),
-				CANTIDAD_DECIMALES);
+		Double kpOfConcentrate = formatearDecimales(KP_OF_WET_CONCENTRATE_CONSTANT
+				+ KP_OF_WET_CONCENTRATE_CONSTANT_DOS * (cmsActual / entradaDto.getPesoCorporal() * 100)
+				- KP_OF_WET_CONCENTRATE_CONSTANT_TRES * (cmsConcentrate / cmsActual * 100), CANTIDAD_DECIMALES);
 
 		cmsActual = 0.0;
 		Double cmsForraje = 0.0;
