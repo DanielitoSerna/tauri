@@ -838,6 +838,7 @@ public class ModeloService implements IModeloService {
 				cpIntake = formatearDecimales(dietaDto.getCantidad() * pbBiblioteca / 100 * 1000, CANTIDAD_DECIMALES);
 				
 				sumaPb = sumaPb + cpIntake;
+				porcentajeRdp = 0.0; 
 				if (new Double(0).equals(dietaDto.getCantidad())) {
 					porcentajeRdp = 0.0;
 				}
@@ -856,7 +857,7 @@ public class ModeloService implements IModeloService {
 				rdp = cpIntake * porcentajeRdp / 100;
 				sumaPdr = sumaPdr + rdp;
 
-				pndr = formatearDecimales(cpIntake * (100 - porcentajeRdp) / 100, CANTIDAD_DECIMALES);
+				pndr = cpIntake * (100 - porcentajeRdp) / 100;
 				sumaPndr = sumaPndr + pndr;
 			}
 		}
@@ -864,12 +865,12 @@ public class ModeloService implements IModeloService {
 		Double porcentajeConcentrado = formatearDecimales(cmsConcentrado / cmsActual * 100, CANTIDAD_DECIMALES);
 		Double fdn = formatearDecimales(sumaFdn / cmsActual * 100, CANTIDAD_DECIMALES);
 		Double fda = formatearDecimales(sumaFda / cmsActual * 100, CANTIDAD_DECIMALES);
-		Double sumaPbDivido = formatearDecimales(sumaPb / 1000, CANTIDAD_DECIMALES);
+		Double sumaPbDivido = sumaPb / 1000;
 		Double pb = formatearDecimales(sumaPbDivido / cmsActual * 100, CANTIDAD_DECIMALES);
 		Double almidon = formatearDecimales(sumaAlmidon / cmsActual * 100, CANTIDAD_DECIMALES);
-		Double sumaPdrDivido = formatearDecimales(sumaPdr / 1000, CANTIDAD_DECIMALES);
+		Double sumaPdrDivido = sumaPdr / 1000;
 		Double pdr = formatearDecimales(((sumaPdrDivido / cmsActual * 100) / pb) * 100, CANTIDAD_DECIMALES);
-		Double sumaPndrDivido = formatearDecimales(sumaPndr / 1000, CANTIDAD_DECIMALES);
+		Double sumaPndrDivido = sumaPndr / 1000;
 		Double pndrBalance = formatearDecimales(((sumaPndrDivido / cmsActual * 100) / pb) * 100, CANTIDAD_DECIMALES);
 
 		System.out.println(cmsActual);
