@@ -808,6 +808,9 @@ public class ModeloService implements IModeloService {
 		Double porcentajeRdp = 0.0;
 		Double pndr = 0.0;
 		Double sumaPndr = 0.0;
+		Double fdnExcel = 0.0;
+		Double fdaExcel = 0.0;
+		Double almidonExcel = 0.0;
 		for (DietaDto dietaDto : dietaDtos) {
 			cmsActual = cmsActual + dietaDto.getCantidad();
 			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
@@ -824,11 +827,17 @@ public class ModeloService implements IModeloService {
 				} else {
 					cmsConcentrado = cmsConcentrado + dietaDto.getCantidad();
 				}
-				sumaFdn = sumaFdn + fdn;
-				sumaFda = sumaFda + fda;
-				sumaPb = sumaPb + pbBiblioteca;
-				sumaAlmidon = sumaAlmidon + almidon;
-				cpIntake = formatearDecimales(dietaDto.getCantidad() * fdn / 100 * 1000, CANTIDAD_DECIMALES);
+				fdnExcel = formatearDecimales(dietaDto.getCantidad()*fdn/100, CANTIDAD_DECIMALES);
+				fdaExcel = formatearDecimales(dietaDto.getCantidad()*fda/100, CANTIDAD_DECIMALES);
+				
+				almidonExcel = formatearDecimales(dietaDto.getCantidad()*almidon/100, CANTIDAD_DECIMALES);
+				
+				sumaFdn = sumaFdn + fdnExcel;
+				sumaFda = sumaFda + fdaExcel;
+				sumaAlmidon = sumaAlmidon + almidonExcel;
+				cpIntake = formatearDecimales(dietaDto.getCantidad() * pbBiblioteca / 100 * 1000, CANTIDAD_DECIMALES);
+				
+				sumaPb = sumaPb + cpIntake;
 				if (new Double(0).equals(dietaDto.getCantidad())) {
 					porcentajeRdp = 0.0;
 				}
@@ -863,6 +872,7 @@ public class ModeloService implements IModeloService {
 		Double sumaPndrDivido = formatearDecimales(sumaPndr / 1000, CANTIDAD_DECIMALES);
 		Double pndrBalance = formatearDecimales(((sumaPndrDivido / cmsActual * 100) / pb) * 100, CANTIDAD_DECIMALES);
 
+		System.out.println(cmsActual);
 		balanceDto.setPorcentajeForraje(porcentajeForraje);
 		balanceDto.setPorcentajeConcentrado(porcentajeConcentrado);
 		balanceDto.setFdn(fdn);
