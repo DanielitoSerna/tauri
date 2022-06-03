@@ -57,7 +57,7 @@ public class ModeloService implements IModeloService {
 			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
 			if (biblioteca != null) {
 				Double ed = biblioteca.getEd() != null ? biblioteca.getEd() : 0.0;
-				tdn = formatearDecimales(((dietaDto.getCantidad() * (ed / 0.04409)) / 100), CANTIDAD_DECIMALES);
+				tdn = formatearDecimales((dietaDto.getCantidad() * (ed / 0.04409)) / 100, CANTIDAD_DECIMALES);
 
 				sumaTdn = sumaTdn + tdn;
 				if ("Concentrado".equals(biblioteca.getTipo())) {
@@ -66,7 +66,6 @@ public class ModeloService implements IModeloService {
 			}
 		}
 		Double tdnOriginal = formatearDecimales(((sumaTdn / cmsActual) * 100), CANTIDAD_DECIMALES);
-		System.out.println(tdnOriginal);
 		Double nel = formatearDecimales((tdnOriginal * 0.0245) - 0.12, CANTIDAD_DECIMALES);
 
 		Double kpOfWetForage = formatearDecimales(
@@ -78,11 +77,9 @@ public class ModeloService implements IModeloService {
 				- KP_OF_WET_CONCENTRATE_CONSTANT_TRES * (cmsConcentrate / cmsActual * 100), CANTIDAD_DECIMALES);
 		Double cw = formatearDecimales((18 + ((entradaDto.getDiasPrenez() - 190) * 0.665)) * (cbw / 45),
 				CANTIDAD_DECIMALES);
-		Double totalDmFeed1 = formatearDecimales((0.372 * fcm + 0.0968 * Math.pow(entradaDto.getPesoCorporal(), 0.75)),
+		Double totalDmFeed = formatearDecimales((0.372 * fcm
+				+ 0.0968 * Math.pow(entradaDto.getPesoCorporal(), 0.75) * (1 - Math.exp(-0.192 * (wol + 3.67)))),
 				CANTIDAD_DECIMALES);
-		Double totalDmFeed2 = formatearDecimales((1 - Math.exp(-0.192 * (wol + 3.67))), CANTIDAD_DECIMALES);
-		Double totalDmFeed = formatearDecimales(totalDmFeed1 * totalDmFeed2, CANTIDAD_DECIMALES);
-
 		Double scurfRequirement = 0.0;
 		Double urinaryRequirement = 0.0;
 		Double neMaint = 0.0;
@@ -199,7 +196,7 @@ public class ModeloService implements IModeloService {
 
 		Double dmiMaintenanceLevel = neMaint / nel;
 		Double intakeAboveMaintenance = cmsActual / dmiMaintenanceLevel;
-		Double tdnActX = formatearDecimales((tdnOriginal - ((0.18 * tdnOriginal*100) - 10.3) * intakeAboveMaintenance - 1),
+		Double tdnActX = formatearDecimales((tdnOriginal-(0.18*(tdnOriginal)-10.3)*(intakeAboveMaintenance-1)),
 				CANTIDAD_DECIMALES);
 		Double nelAdjusted = formatearDecimales((tdnActX * 0.0245) - 0.12, CANTIDAD_DECIMALES);
 
