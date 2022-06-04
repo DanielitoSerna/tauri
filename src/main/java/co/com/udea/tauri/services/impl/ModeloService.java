@@ -601,7 +601,7 @@ public class ModeloService implements IModeloService {
 		Double dioxidoCarbonoEqFactorEmision = formatearDecimales((dioxidoCarbonoEqDiaGramo * 365) / 1000,
 				CANTIDAD_DECIMALES);
 
-		Double msAbsorbidaProduccionFecal = formatearDecimales(cmsActual * (69 / 100), CANTIDAD_DECIMALES);
+		Double msAbsorbidaProduccionFecal = formatearDecimales(cmsActual * (69.0 / 100.0), CANTIDAD_DECIMALES);
 		Double msFecalProduccionFecal = formatearDecimales(cmsActual - msAbsorbidaProduccionFecal, CANTIDAD_DECIMALES);
 		Double emisionMetanoDiaProduccionFecal = formatearDecimales(msFecalProduccionFecal * 1.4, CANTIDAD_DECIMALES);
 		Double emisionMetanoAnioProduccionFecal = formatearDecimales((emisionMetanoDiaProduccionFecal * 365) / 1000,
@@ -619,14 +619,12 @@ public class ModeloService implements IModeloService {
 				CANTIDAD_DECIMALES);
 		Double metanoLcgExcretaGramo = formatearDecimales(metanoDiaExcretaGramo / fcm, CANTIDAD_DECIMALES);
 
-		Double msAbsorbidaCo2Fecal = formatearDecimales(cmsActual * (69 / 100), CANTIDAD_DECIMALES);
+		Double msAbsorbidaCo2Fecal = formatearDecimales(cmsActual * (69.0 / 100), CANTIDAD_DECIMALES);
 		Double msFecalCo2Fecal = formatearDecimales(cmsActual - msAbsorbidaCo2Fecal, CANTIDAD_DECIMALES);
 		Double emisionCo2DiaFecal = formatearDecimales(msFecalCo2Fecal * 508.9, CANTIDAD_DECIMALES);
 		Double emisionCo2anioFecal = formatearDecimales((emisionCo2DiaFecal * 365) / 1000, CANTIDAD_DECIMALES);
-
 		Double emisionCo2diaUrinaria = formatearDecimales(27 * 30.2, CANTIDAD_DECIMALES);
 		Double emisionCo2anioUrinaria = formatearDecimales((emisionCo2diaUrinaria * 365) / 1000, CANTIDAD_DECIMALES);
-
 		Double dioxidoCarbonoExcretaFactorEmision = formatearDecimales(emisionCo2anioFecal + emisionCo2anioUrinaria,
 				CANTIDAD_DECIMALES);
 		Double dioxidoCarbonoExcretaDiaGramo = formatearDecimales((dioxidoCarbonoExcretaFactorEmision * 1000) / 365,
@@ -636,7 +634,7 @@ public class ModeloService implements IModeloService {
 		Double dioxidoCarbonoExcretaLgcGramo = formatearDecimales(dioxidoCarbonoExcretaDiaGramo / fcm,
 				CANTIDAD_DECIMALES);
 
-		Double msAbsorbidaN2oFecal = formatearDecimales(cmsActual * (69 / 100), CANTIDAD_DECIMALES);
+		Double msAbsorbidaN2oFecal = formatearDecimales(cmsActual * (69.0 / 100.0), CANTIDAD_DECIMALES);
 		Double msFecalN2oFecal = formatearDecimales(cmsActual - msAbsorbidaN2oFecal, CANTIDAD_DECIMALES);
 		Double nAplicadoFecal = formatearDecimales(msFecalN2oFecal * 0.03, CANTIDAD_DECIMALES);
 		Double emisionNN2oDiaFecal = formatearDecimales((nAplicadoFecal * (0.32 / 100)) * 1000, CANTIDAD_DECIMALES);
@@ -654,7 +652,7 @@ public class ModeloService implements IModeloService {
 		Double oxidoNitrosoMsConsumidoGramo = formatearDecimales(oxidoNitrosoDiaGramo / cmsActual, CANTIDAD_DECIMALES);
 		Double oxidoNitrosoLcgGramo = formatearDecimales(oxidoNitrosoDiaGramo / fcm, CANTIDAD_DECIMALES);
 
-		Double msAbsorbidaCo2EqFecal = formatearDecimales(cmsActual * (69 / 100), CANTIDAD_DECIMALES);
+		Double msAbsorbidaCo2EqFecal = formatearDecimales(cmsActual * (69.0 / 100.0), CANTIDAD_DECIMALES);
 		Double msFecalCo2EqFecal = formatearDecimales(cmsActual - msAbsorbidaCo2EqFecal, CANTIDAD_DECIMALES);
 		Double emisionCo2EqDiaFecal = formatearDecimales(msFecalCo2EqFecal * 564, CANTIDAD_DECIMALES);
 		Double emisionCo2EqAnioFecal = formatearDecimales((emisionCo2EqDiaFecal * 365) / 1000, CANTIDAD_DECIMALES);
