@@ -639,13 +639,13 @@ public class ModeloService implements IModeloService {
 		Double nAplicadoFecal = formatearDecimales(msFecalN2oFecal * 0.03, CANTIDAD_DECIMALES);
 		Double emisionNN2oDiaFecal = formatearDecimales((nAplicadoFecal * (0.32 / 100)) * 1000, CANTIDAD_DECIMALES);
 		Double emisionN2oDiaFecal = formatearDecimales(emisionNN2oDiaFecal / 0.6364, CANTIDAD_DECIMALES);
-		Double emisionN2oAnioFecal = formatearDecimales((emisionN2oDiaFecal * 365) / 1000, CANTIDAD_DECIMALES);
-
-		Double nAplicadoUrinario = formatearDecimales(27 * 0.006, CANTIDAD_DECIMALES);
-		Double emisionNN2oUrinario = formatearDecimales((nAplicadoUrinario * (1.67 / 100)) * 1000, CANTIDAD_DECIMALES);
+		Double emisionN2oAnioFecal = (emisionN2oDiaFecal * 365) / 1000;
+		
+		Double nAplicadoUrinario = 27 * 0.006;
+		Double emisionNN2oUrinario = formatearDecimales((nAplicadoUrinario * (1.67 / 100.0)) * 1000.0, CANTIDAD_DECIMALES);
 		Double emisionN2oDiaUrinario = formatearDecimales(emisionNN2oUrinario / 0.6364, CANTIDAD_DECIMALES);
-		Double emisionN2oAnioUrinario = formatearDecimales((emisionN2oDiaUrinario * 365) / 1000, CANTIDAD_DECIMALES);
-
+		Double emisionN2oAnioUrinario = (emisionN2oDiaUrinario * 365) / 1000;
+		
 		Double oxidoNitrosoFactorEmision = formatearDecimales(emisionN2oAnioFecal + emisionN2oAnioUrinario,
 				CANTIDAD_DECIMALES);
 		Double oxidoNitrosoDiaGramo = formatearDecimales((oxidoNitrosoFactorEmision * 1000) / 365, CANTIDAD_DECIMALES);
@@ -654,13 +654,11 @@ public class ModeloService implements IModeloService {
 
 		Double msAbsorbidaCo2EqFecal = formatearDecimales(cmsActual * (69.0 / 100.0), CANTIDAD_DECIMALES);
 		Double msFecalCo2EqFecal = formatearDecimales(cmsActual - msAbsorbidaCo2EqFecal, CANTIDAD_DECIMALES);
-		Double emisionCo2EqDiaFecal = formatearDecimales(msFecalCo2EqFecal * 564, CANTIDAD_DECIMALES);
+		Double emisionCo2EqDiaFecal = formatearDecimales(msFecalCo2EqFecal * 564.0, CANTIDAD_DECIMALES);
 		Double emisionCo2EqAnioFecal = formatearDecimales((emisionCo2EqDiaFecal * 365) / 1000, CANTIDAD_DECIMALES);
-
-		Double emisionCo2EqDiaUrinario = formatearDecimales(17 * 74.98, CANTIDAD_DECIMALES);
+		Double emisionCo2EqDiaUrinario = formatearDecimales(27.0 * 74.98, CANTIDAD_DECIMALES);
 		Double emisionCo2EqAnioUrinario = formatearDecimales((emisionCo2EqDiaUrinario * 365) / 1000,
 				CANTIDAD_DECIMALES);
-
 		Double co2FactorEmision = formatearDecimales(emisionCo2EqAnioFecal + emisionCo2EqAnioUrinario,
 				CANTIDAD_DECIMALES);
 		Double co2EqDiaGramo = formatearDecimales((co2FactorEmision * 1000) / 365, CANTIDAD_DECIMALES);
