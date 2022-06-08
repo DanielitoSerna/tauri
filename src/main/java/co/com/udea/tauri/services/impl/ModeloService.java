@@ -417,8 +417,8 @@ public class ModeloService implements IModeloService {
 							? biblioteca.getDigestibilidadPndr()
 							: 0.0;
 					if ("Forraje".equals(biblioteca.getTipo())) {
-						rupDigestible = (fraccionB * (kpOfWetForage / (kpOfWetForage + kdFraccionB)) + fraccionC);
-//						(T6*('Modelo (todo)'!$D$53/('Modelo (todo)'!$D$53+Aportes!X6))+Aportes!U6)
+						rupDigestible = (fraccionB * (kpOfWetForage / (kpOfWetForage + kdFraccionB)) + fraccionC)
+								* (digestibilidadPndr / 100);
 						System.out.println("kpOfWetForage " + kpOfWetForage);
 						System.out.println("fraccion B " + fraccionB);
 						System.out.println("fraccion C" + fraccionC);
@@ -844,9 +844,9 @@ public class ModeloService implements IModeloService {
 					porcentajeRdp = 0.0;
 					porcentajeCnf = 0.0;
 				} else {
-					porcentajeCnf = (100-(pbBiblioteca+fdn+grasaCruda+ceniza));
+					porcentajeCnf = (100 - (pbBiblioteca + fdn + grasaCruda + ceniza));
 				}
-				Double cnf = dietaDto.getCantidad()*porcentajeCnf/100;
+				Double cnf = dietaDto.getCantidad() * porcentajeCnf / 100;
 				sumaCnf = sumaCnf + cnf;
 				if ("Forraje".equals(biblioteca.getTipo())) {
 					porcentajeRdp = formatearDecimales(
