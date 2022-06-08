@@ -117,6 +117,8 @@ public class ModeloService implements IModeloService {
 		Double pregnancyPhosphorous = 0.0;
 		Double mgPregnancy = 0.0;
 		Double kPregnancy = 0.0;
+		Double mpPreg = 0.0;
+		Double nePreg = 0.0;
 		if (entradaDto.getDiasPrenez() < 190) {
 			scurfRequirement = formatearDecimales(
 					CONSTANT_SCURF_REQUIREMENT
@@ -151,6 +153,8 @@ public class ModeloService implements IModeloService {
 			pregnancyPhosphorous = 0.0;
 			mgPregnancy = 0.0;
 			kPregnancy = 0.0;
+			mpPreg = 0.0;
+			nePreg = 0.0;
 		} else {
 			scurfRequirement = formatearDecimales(
 					CONSTANT_SCURF_REQUIREMENT
@@ -191,6 +195,11 @@ public class ModeloService implements IModeloService {
 					CANTIDAD_DECIMALES);
 			mgPregnancy = 0.33;
 			kPregnancy = 1.027;
+			mpPreg = formatearDecimales((((0.69 * entradaDto.getDiasPrenez()) - 69.2) * (cbw / 45)) / 0.33,
+					CANTIDAD_DECIMALES);
+			nePreg = formatearDecimales(
+					0.64 * ((((2 * 0.00159 * entradaDto.getDiasPrenez()) - 0.0352) * (cbw / 45)) / 0.14),
+					CANTIDAD_DECIMALES);
 		}
 
 		Double dmiMaintenanceLevel = neMaint / nel;
@@ -219,9 +228,6 @@ public class ModeloService implements IModeloService {
 				CANTIDAD_DECIMALES);
 
 		Double mpLact = formatearDecimales((yprotn / 0.67) * 1000, CANTIDAD_DECIMALES);
-
-		Double mpPreg = formatearDecimales((((0.69 * entradaDto.getDiasPrenez()) - 69.2) * (cbw / 45)) / 0.33,
-				CANTIDAD_DECIMALES);
 
 		Double meanTargetSbw = formatearDecimales(entradaDto.getPesoCorporal() * 0.96, CANTIDAD_DECIMALES);
 		Double eqsbw = 0.0;
@@ -261,10 +267,6 @@ public class ModeloService implements IModeloService {
 		}
 
 		Double yEn = formatearDecimales(milkEneg * milkProd, CANTIDAD_DECIMALES);
-
-		Double nePreg = formatearDecimales(
-				0.64 * ((((2 * 0.00159 * entradaDto.getDiasPrenez()) - 0.0352) * (cbw / 45)) / 0.14),
-				CANTIDAD_DECIMALES);
 
 		Double totalNeRequirement = formatearDecimales(neMaintEnergy + yEn + nePreg + growht, CANTIDAD_DECIMALES);
 
