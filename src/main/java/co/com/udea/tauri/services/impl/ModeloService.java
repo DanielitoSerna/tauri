@@ -279,7 +279,7 @@ public class ModeloService implements IModeloService {
 			fecalCalcium = formatearDecimales(3.1 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
 			lactationPhosphorous = formatearDecimales(0.9 * milkProd, CANTIDAD_DECIMALES);
 			kFecal = formatearDecimales(6.1 * cmsActual, CANTIDAD_DECIMALES);
-			kLactation = formatearDecimales(0.15 * milkProd, CANTIDAD_DECIMALES);
+			kLactation = formatearDecimales(1.5 * milkProd, CANTIDAD_DECIMALES);
 			mgLactation = formatearDecimales(milkProd * 0.15, CANTIDAD_DECIMALES);
 			if ("Jersey".equals(entradaDto.getRaza())) {
 				lactationCalcium = formatearDecimales(1.45 * milkProd, CANTIDAD_DECIMALES);
@@ -404,10 +404,6 @@ public class ModeloService implements IModeloService {
 						CANTIDAD_DECIMALES);
 				mg = formatearDecimales(((dietaDto.getCantidad()*porcentajeMg/100)*1000)*coeficienteAbsorcionMg,
 						CANTIDAD_DECIMALES);
-				System.out.println("MG "+ dietaDto.getCantidad());
-				System.out.println("MG "+ porcentajeMg);
-				System.out.println("MG "+ coeficienteAbsorcionMg);
-				System.out.println("MG "+ mg);
 				
 				if (dietaDto.getCantidad() == 0) {
 					rupDigestible = 0.0;
