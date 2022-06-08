@@ -7,7 +7,7 @@
 
 spring.jpa.properties.hibernate.dialect = org.hibernate.dialect.PostgreSQLDialect
 spring.jpa.hibernate.ddl-auto=none
-spring.datasource.url=postgres://hbgtxmubirmkyr:6d5d2fe33d293fdf580ecfbaedec70df575b50ef17b1f4de5aa1d7e993fcd1e8@ec2-54-147-33-38.compute-1.amazonaws.com:5432/d9pj3f30uqvqiu
-spring.datasource.username=hbgtxmubirmkyr
-spring.datasource.password=6d5d2fe33d293fdf580ecfbaedec70df575b50ef17b1f4de5aa1d7e993fcd1e8
+spring.datasource.url=jdbc:postgresql://localhost:5432/tauridb
+spring.datasource.username=usertauri
+spring.datasource.password=123456
 spring.jpa.show-sql=true
