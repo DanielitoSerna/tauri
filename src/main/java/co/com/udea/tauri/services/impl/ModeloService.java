@@ -404,9 +404,9 @@ public class ModeloService implements IModeloService {
 						CANTIDAD_DECIMALES);
 				k = formatearDecimales(((dietaDto.getCantidad() * porcentajeK / 100) * 1000) * coeficienteAbsorcionK,
 						CANTIDAD_DECIMALES);
-				mg = formatearDecimales(((dietaDto.getCantidad()*porcentajeMg/100)*1000)*coeficienteAbsorcionMg,
+				mg = formatearDecimales(((dietaDto.getCantidad() * porcentajeMg / 100) * 1000) * coeficienteAbsorcionMg,
 						CANTIDAD_DECIMALES);
-				
+
 				if (dietaDto.getCantidad() == 0) {
 					rupDigestible = 0.0;
 				} else {
@@ -417,9 +417,7 @@ public class ModeloService implements IModeloService {
 							? biblioteca.getDigestibilidadPndr()
 							: 0.0;
 					if ("Forraje".equals(biblioteca.getTipo())) {
-						rupDigestible = formatearDecimales(
-								(fraccionB * (kpOfWetForage / (kpOfWetForage + kdFraccionB)) + fraccionC),
-								CANTIDAD_DECIMALES);
+						rupDigestible = (fraccionB * (kpOfWetForage / (kpOfWetForage + kdFraccionB)) + fraccionC);
 //						(T6*('Modelo (todo)'!$D$53/('Modelo (todo)'!$D$53+Aportes!X6))+Aportes!U6)
 						System.out.println("kpOfWetForage " + kpOfWetForage);
 						System.out.println("fraccion B " + fraccionB);
@@ -427,17 +425,14 @@ public class ModeloService implements IModeloService {
 						System.out.println("fraccion kd B " + kdFraccionB);
 						System.out.println(rupDigestible + "   forraje");
 					} else {
-						rupDigestible = formatearDecimales(
-								(fraccionB * (kpOfConcentrate / (kpOfConcentrate + kdFraccionB)) + fraccionC)
-										* (digestibilidadPndr / 100),
-								CANTIDAD_DECIMALES);
+						rupDigestible = (fraccionB * (kpOfConcentrate / (kpOfConcentrate + kdFraccionB)) + fraccionC)
+								* (digestibilidadPndr / 100);
 						System.out.println(rupDigestible + "   concentrado");
 					}
 				}
-				productoCpIntakeRupDigestible = formatearDecimales(cpIntake * rupDigestible, CANTIDAD_DECIMALES);
+				productoCpIntakeRupDigestible = cpIntake * rupDigestible;
 			}
-			sumaProductoCpIntakeRupDigestible = formatearDecimales(
-					sumaProductoCpIntakeRupDigestible + productoCpIntakeRupDigestible, CANTIDAD_DECIMALES);
+			sumaProductoCpIntakeRupDigestible = sumaProductoCpIntakeRupDigestible + productoCpIntakeRupDigestible;
 			totalConsumidoCa = formatearDecimales(totalConsumidoCa + ca, CANTIDAD_DECIMALES);
 			totalConsumidoP = formatearDecimales(totalConsumidoP + p, CANTIDAD_DECIMALES);
 			totalConsumidoK = formatearDecimales(totalConsumidoK + k, CANTIDAD_DECIMALES);
