@@ -397,7 +397,6 @@ public class ModeloService implements IModeloService {
 				Double pb = biblioteca.getPb() != null ? biblioteca.getPb() : 0.0;
 
 				cpIntake = formatearDecimales(dietaDto.getCantidad() * pb / 100 * 1000, CANTIDAD_DECIMALES);
-				System.out.println(" cpIntake " + cpIntake);
 				ca = formatearDecimales(((dietaDto.getCantidad() * porcentajeCa / 100) * 1000) * coeficienteAbsorcionCa,
 						CANTIDAD_DECIMALES);
 				p = formatearDecimales(((dietaDto.getCantidad() * porcentajeP / 100) * 1000) * coeficienteAbsorcionP,
@@ -419,15 +418,9 @@ public class ModeloService implements IModeloService {
 					if ("Forraje".equals(biblioteca.getTipo())) {
 						rupDigestible = (fraccionB * (kpOfWetForage / (kpOfWetForage + kdFraccionB)) + fraccionC)
 								* (digestibilidadPndr / 100);
-						System.out.println("kpOfWetForage " + kpOfWetForage);
-						System.out.println("fraccion B " + fraccionB);
-						System.out.println("fraccion C" + fraccionC);
-						System.out.println("fraccion kd B " + kdFraccionB);
-						System.out.println(rupDigestible + "   forraje");
 					} else {
 						rupDigestible = (fraccionB * (kpOfConcentrate / (kpOfConcentrate + kdFraccionB)) + fraccionC)
 								* (digestibilidadPndr / 100);
-						System.out.println(rupDigestible + "   concentrado");
 					}
 				}
 				productoCpIntakeRupDigestible = cpIntake * rupDigestible;
@@ -436,7 +429,6 @@ public class ModeloService implements IModeloService {
 			totalConsumidoCa = formatearDecimales(totalConsumidoCa + ca, CANTIDAD_DECIMALES);
 			totalConsumidoP = formatearDecimales(totalConsumidoP + p, CANTIDAD_DECIMALES);
 			totalConsumidoK = formatearDecimales(totalConsumidoK + k, CANTIDAD_DECIMALES);
-//			totalConsumidoMg = ((dietaDto.getCantidad()*biblioteca.getPorcentajeMg()/100)*1000)*CG6
 			totalConsumidoMg = formatearDecimales(totalConsumidoMg + mg, CANTIDAD_DECIMALES);
 		}
 
