@@ -808,6 +808,7 @@ public class ModeloService implements IModeloService {
 		Double fdnExcel = 0.0;
 		Double fdaExcel = 0.0;
 		Double almidonExcel = 0.0;
+		Double sumaCnf = 0.0;
 		for (DietaDto dietaDto : dietaDtos) {
 			cmsActual = cmsActual + dietaDto.getCantidad();
 			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
@@ -819,6 +820,8 @@ public class ModeloService implements IModeloService {
 				Double fda = biblioteca.getFda() != null ? biblioteca.getFda() : 0.0;
 				Double pbBiblioteca = biblioteca.getPb() != null ? biblioteca.getPb() : 0.0;
 				Double almidon = biblioteca.getAlmidon() != null ? biblioteca.getAlmidon() : 0.0;
+				Double grasaCruda = biblioteca.getGrasaCruda() != null ? biblioteca.getGrasaCruda() : 0.0;
+				Double ceniza = biblioteca.getCeniza() != null ? biblioteca.getCeniza() : 0.0;
 				if ("Forraje".equals(biblioteca.getTipo())) {
 					cmsForraje = cmsForraje + dietaDto.getCantidad();
 				} else {
@@ -836,9 +839,15 @@ public class ModeloService implements IModeloService {
 
 				sumaPb = sumaPb + cpIntake;
 				porcentajeRdp = 0.0;
+				Double porcentajeCnf = 0.0;
 				if (new Double(0).equals(dietaDto.getCantidad())) {
 					porcentajeRdp = 0.0;
+					porcentajeCnf = 0.0;
+				} else {
+					porcentajeCnf = (100-(pbBiblioteca+fdn+grasaCruda+ceniza));
 				}
+				Double cnf = dietaDto.getCantidad()*porcentajeCnf/100;
+				sumaCnf = sumaCnf + cnf;
 				if ("Forraje".equals(biblioteca.getTipo())) {
 					porcentajeRdp = formatearDecimales(
 							fraccionA + (fraccionB * (kdFraccionB / (kdFraccionB + kpOfWetForage))),
@@ -869,6 +878,7 @@ public class ModeloService implements IModeloService {
 		Double pdr = formatearDecimales(((sumaPdrDivido / cmsActual * 100) / pb) * 100, CANTIDAD_DECIMALES);
 		Double sumaPndrDivido = sumaPndr / 1000;
 		Double pndrBalance = formatearDecimales(((sumaPndrDivido / cmsActual * 100) / pb) * 100, CANTIDAD_DECIMALES);
+		Double relacionCnfPdr = formatearDecimales(sumaCnf / sumaPdrDivido, CANTIDAD_DECIMALES);
 
 		balanceDto.setPorcentajeForraje(porcentajeForraje);
 		balanceDto.setPorcentajeConcentrado(porcentajeConcentrado);
@@ -878,6 +888,7 @@ public class ModeloService implements IModeloService {
 		balanceDto.setAlmidon(almidon);
 		balanceDto.setPdr(pdr);
 		balanceDto.setPndr(pndrBalance);
+		balanceDto.setRelacionCnfPdr(relacionCnfPdr);
 		return balanceDto;
 	}
 

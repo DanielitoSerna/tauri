@@ -17,6 +17,8 @@ public class BalanceDto {
 	private Double pndr;
 	
 	private Double pb;
+	
+	private Double relacionCnfPdr;
 
 	public Double getPorcentajeForraje() {
 		return porcentajeForraje;
@@ -80,6 +82,14 @@ public class BalanceDto {
 
 	public void setPb(Double pb) {
 		this.pb = pb;
+	}
+
+	public Double getRelacionCnfPdr() {
+		return relacionCnfPdr;
+	}
+
+	public void setRelacionCnfPdr(Double relacionCnfPdr) {
+		this.relacionCnfPdr = relacionCnfPdr;
 	}
 	
 }
