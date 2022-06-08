@@ -20,7 +20,6 @@ import co.com.udea.tauri.services.IModeloService;
 public class ModeloService implements IModeloService {
 
 	private static final Double MW_JERSEY = 454.0, MW_HOLSTEIN = 680.0, CBW_CONSTANT = 0.06275;
-	private static final Double MILK_TRUE_PROTEIN_CONSTANT = 0.93;
 	private static final Integer CANTIDAD_DECIMALES = 2;
 	private static final Double KP_OF_WET_FORAGE_CONSTANT = 3.054, KP_OF_WET_FORAGE_CONSTANT_DOS = 0.614;
 	private static final Double KP_OF_WET_CONCENTRATE_CONSTANT = 2.904, KP_OF_WET_CONCENTRATE_CONSTANT_DOS = 1.375;
@@ -35,12 +34,11 @@ public class ModeloService implements IModeloService {
 		ModeloDto modeloDto = new ModeloDto();
 
 		Double wol = formatearDecimales(entradaDto.getDiasLeche() / 7, CANTIDAD_DECIMALES);
-		Double milkProd = formatearDecimales(entradaDto.getProduccionLeche() * 1.03, CANTIDAD_DECIMALES);
-		Double milkTrueProtein = formatearDecimales(entradaDto.getProteinaCruda() * MILK_TRUE_PROTEIN_CONSTANT,
-				CANTIDAD_DECIMALES);
+		Double milkProd = entradaDto.getProduccionLeche() * 1.03;
+		Double milkTrueProtein = entradaDto.getProteinaCruda() * 0.93;
 		Double fcm = formatearDecimales((0.4 * milkProd + 15 * (milkProd * entradaDto.getGrasa() / 100)),
 				CANTIDAD_DECIMALES);
-		Double yprotn = formatearDecimales((milkProd * (milkTrueProtein / 100)), 2);
+		Double yprotn = (milkProd * (milkTrueProtein / 100));
 		Double cbw = 0.0;
 		if ("Jersey".equals(entradaDto.getRaza())) {
 			cbw = MW_JERSEY * CBW_CONSTANT;
@@ -186,18 +184,19 @@ public class ModeloService implements IModeloService {
 							- 0.02456 * Math.exp((0.05581 - (0.00007 * (entradaDto.getDiasPrenez() - 1)))
 									* (entradaDto.getDiasPrenez() - 1)),
 					CANTIDAD_DECIMALES);
-			pregnancyPhosphorous = 0.02743
+			pregnancyPhosphorous = formatearDecimales(0.02743
 					* Math.exp(((0.05527 - (0.000075 * entradaDto.getDiasPrenez())) * entradaDto.getDiasPrenez()))
 					- 0.02743 * Math.exp(((0.05527 - (0.000075 * (entradaDto.getDiasPrenez() - 1)))
-							* (entradaDto.getDiasPrenez() - 1)));
+							* (entradaDto.getDiasPrenez() - 1))),
+					CANTIDAD_DECIMALES);
 			mgPregnancy = 0.33;
 			kPregnancy = 1.027;
 		}
 
 		Double dmiMaintenanceLevel = neMaint / nel;
 		Double intakeAboveMaintenance = cmsActual / dmiMaintenanceLevel;
-		Double tdnActX = formatearDecimales((tdnOriginal-(0.18*(tdnOriginal)-10.3)*(intakeAboveMaintenance-1)),
-				CANTIDAD_DECIMALES);
+		Double tdnActX = formatearDecimales(
+				(tdnOriginal - (0.18 * (tdnOriginal) - 10.3) * (intakeAboveMaintenance - 1)), CANTIDAD_DECIMALES);
 		Double nelAdjusted = formatearDecimales((tdnActX * 0.0245) - 0.12, CANTIDAD_DECIMALES);
 
 		Double mcpFromTdnDiscounted = formatearDecimales((tdnActX / 100) * cmsActual * 130, CANTIDAD_DECIMALES);
@@ -232,20 +231,19 @@ public class ModeloService implements IModeloService {
 			eqsbw = formatearDecimales(meanTargetSbw * (478 / (MW_HOLSTEIN * 0.96)), CANTIDAD_DECIMALES);
 		}
 
-		Double eqebw = formatearDecimales(eqsbw * 0.891, CANTIDAD_DECIMALES);
-		Double eqebwExp = formatearDecimales(Math.pow(eqebw, 0.75), CANTIDAD_DECIMALES);
-		Double swg = formatearDecimales(entradaDto.getGananciaPeso() * 0.96, CANTIDAD_DECIMALES);
-		Double eqebg = formatearDecimales(swg * 0.956, CANTIDAD_DECIMALES);
-		Double eqebgExp = formatearDecimales(Math.pow(eqebg, 1.097), CANTIDAD_DECIMALES);
-		Double re = formatearDecimales(0.0635 * eqebwExp * eqebgExp, CANTIDAD_DECIMALES);
-
-		Double npg = formatearDecimales(swg * (268 - (29.4 * (re / swg))), CANTIDAD_DECIMALES);
-		Double effmpNpg = formatearDecimales((83.4 - (0.114 * eqsbw)) / 100, CANTIDAD_DECIMALES);
+		Double eqebw = eqsbw * 0.891;
+		Double eqebwExp = Math.pow(eqebw, 0.75);
+		Double swg = entradaDto.getGananciaPeso() * 0.96;
+		Double eqebg = swg * 0.956;
+		Double eqebgExp = Math.pow(eqebg, 1.097);
+		Double re = 0.0635 * eqebwExp * eqebgExp;
+		Double npg = swg * (268 - (29.4 * (re / swg)));
+		Double effmpNpg = (83.4 - (0.114 * eqsbw)) / 100;
 
 		Double growht = 0.0;
 		Double fecalPhosphorous = 0.0;
 		if (entradaDto.getNumeroParto() <= 2) {
-			growht = re;
+			growht = formatearDecimales(re, CANTIDAD_DECIMALES);
 			fecalPhosphorous = formatearDecimales(0.8 * cmsActual, CANTIDAD_DECIMALES);
 		} else {
 			growht = 0.0;
@@ -254,12 +252,11 @@ public class ModeloService implements IModeloService {
 
 		Double milkEneg = 0.0;
 		if (entradaDto.getLactosa() == 0) {
-			milkEneg = formatearDecimales(
-					(0.0929 * entradaDto.getGrasa()) + (0.0547 * (milkTrueProtein / 0.93)) + 0.192, CANTIDAD_DECIMALES);
+			milkEneg = (0.0929 * entradaDto.getGrasa()) + (0.0547 * (milkTrueProtein / 0.93)) + 0.192;
 		} else {
 			if (entradaDto.getLactosa() > 0) {
-				milkEneg = formatearDecimales((0.0929 * entradaDto.getGrasa()) + (0.0547 * (milkTrueProtein / 0.93))
-						+ (0.0395 * entradaDto.getLactosa()), CANTIDAD_DECIMALES);
+				milkEneg = (0.0929 * entradaDto.getGrasa()) + (0.0547 * (milkTrueProtein / 0.93))
+						+ (0.0395 * entradaDto.getLactosa());
 			}
 		}
 
@@ -338,13 +335,15 @@ public class ModeloService implements IModeloService {
 
 		Double growthPhosphorous = 0.0;
 		if ("Jersey".equals(entradaDto.getRaza())) {
-			growthPhosphorous = (1.2
-					+ (4.635 * Math.pow(MW_JERSEY, 0.22)) * Math.pow(entradaDto.getPesoCorporal(), -0.22))
-					* (entradaDto.getGananciaPeso());
+			growthPhosphorous = formatearDecimales(
+					(1.2 + (4.635 * Math.pow(MW_JERSEY, 0.22)) * Math.pow(entradaDto.getPesoCorporal(), -0.22))
+							* (entradaDto.getGananciaPeso()),
+					CANTIDAD_DECIMALES);
 		} else {
-			growthPhosphorous = (1.2
-					+ (4.635 * Math.pow(MW_HOLSTEIN, 0.22)) * Math.pow(entradaDto.getPesoCorporal(), -0.22))
-					* (entradaDto.getGananciaPeso());
+			growthPhosphorous = formatearDecimales(
+					(1.2 + (4.635 * Math.pow(MW_HOLSTEIN, 0.22)) * Math.pow(entradaDto.getPesoCorporal(), -0.22))
+							* (entradaDto.getGananciaPeso()),
+					CANTIDAD_DECIMALES);
 		}
 
 		Double pRequirement = formatearDecimales(
@@ -377,7 +376,6 @@ public class ModeloService implements IModeloService {
 			Double productoCpIntakeRupDigestible = 0.0;
 			Biblioteca biblioteca = bibliotecaRepository.findById(dietaDto.getIdBiblioteca()).get();
 			if (biblioteca != null) {
-				Double fdn = biblioteca.getFdn() != null ? biblioteca.getFdn() : 0.0;
 				Double porcentajeCa = biblioteca.getPorcentajeCa() != null ? biblioteca.getPorcentajeCa() : 0.0;
 				Double coeficienteAbsorcionCa = biblioteca.getCoeficienteAbsorcionCa() != null
 						? biblioteca.getCoeficienteAbsorcionCa()
@@ -394,17 +392,24 @@ public class ModeloService implements IModeloService {
 				Double coeficienteAbsorcionMg = biblioteca.getCoeficienteAbsorcionMg() != null
 						? biblioteca.getCoeficienteAbsorcionMg()
 						: 0.0;
+				Double pb = biblioteca.getPb() != null ? biblioteca.getPb() : 0.0;
 
-				cpIntake = formatearDecimales(dietaDto.getCantidad() * fdn / 100 * 1000, CANTIDAD_DECIMALES);
+				cpIntake = formatearDecimales(dietaDto.getCantidad() * pb / 100 * 1000, CANTIDAD_DECIMALES);
+				System.out.println(" cpIntake " + cpIntake);
 				ca = formatearDecimales(((dietaDto.getCantidad() * porcentajeCa / 100) * 1000) * coeficienteAbsorcionCa,
 						CANTIDAD_DECIMALES);
 				p = formatearDecimales(((dietaDto.getCantidad() * porcentajeP / 100) * 1000) * coeficienteAbsorcionP,
 						CANTIDAD_DECIMALES);
 				k = formatearDecimales(((dietaDto.getCantidad() * porcentajeK / 100) * 1000) * coeficienteAbsorcionK,
 						CANTIDAD_DECIMALES);
-				mg = formatearDecimales(((dietaDto.getCantidad() * porcentajeMg) / 1000) * coeficienteAbsorcionMg,
+				mg = formatearDecimales(((dietaDto.getCantidad()*porcentajeMg/100)*1000)*coeficienteAbsorcionMg,
 						CANTIDAD_DECIMALES);
-				if (entradaDto.getNumeroParto() == 0) {
+				System.out.println("MG "+ dietaDto.getCantidad());
+				System.out.println("MG "+ porcentajeMg);
+				System.out.println("MG "+ coeficienteAbsorcionMg);
+				System.out.println("MG "+ mg);
+				
+				if (dietaDto.getCantidad() == 0) {
 					rupDigestible = 0.0;
 				} else {
 					Double fraccionB = biblioteca.getFraccionB() != null ? biblioteca.getFraccionB() : 0.0;
@@ -417,11 +422,18 @@ public class ModeloService implements IModeloService {
 						rupDigestible = formatearDecimales(
 								(fraccionB * (kpOfWetForage / (kpOfWetForage + kdFraccionB)) + fraccionC),
 								CANTIDAD_DECIMALES);
+//						(T6*('Modelo (todo)'!$D$53/('Modelo (todo)'!$D$53+Aportes!X6))+Aportes!U6)
+						System.out.println("kpOfWetForage " + kpOfWetForage);
+						System.out.println("fraccion B " + fraccionB);
+						System.out.println("fraccion C" + fraccionC);
+						System.out.println("fraccion kd B " + kdFraccionB);
+						System.out.println(rupDigestible + "   forraje");
 					} else {
 						rupDigestible = formatearDecimales(
 								(fraccionB * (kpOfConcentrate / (kpOfConcentrate + kdFraccionB)) + fraccionC)
 										* (digestibilidadPndr / 100),
 								CANTIDAD_DECIMALES);
+						System.out.println(rupDigestible + "   concentrado");
 					}
 				}
 				productoCpIntakeRupDigestible = formatearDecimales(cpIntake * rupDigestible, CANTIDAD_DECIMALES);
@@ -431,6 +443,7 @@ public class ModeloService implements IModeloService {
 			totalConsumidoCa = formatearDecimales(totalConsumidoCa + ca, CANTIDAD_DECIMALES);
 			totalConsumidoP = formatearDecimales(totalConsumidoP + p, CANTIDAD_DECIMALES);
 			totalConsumidoK = formatearDecimales(totalConsumidoK + k, CANTIDAD_DECIMALES);
+//			totalConsumidoMg = ((dietaDto.getCantidad()*biblioteca.getPorcentajeMg()/100)*1000)*CG6
 			totalConsumidoMg = formatearDecimales(totalConsumidoMg + mg, CANTIDAD_DECIMALES);
 		}
 
@@ -640,12 +653,13 @@ public class ModeloService implements IModeloService {
 		Double emisionNN2oDiaFecal = formatearDecimales((nAplicadoFecal * (0.32 / 100)) * 1000, CANTIDAD_DECIMALES);
 		Double emisionN2oDiaFecal = formatearDecimales(emisionNN2oDiaFecal / 0.6364, CANTIDAD_DECIMALES);
 		Double emisionN2oAnioFecal = (emisionN2oDiaFecal * 365) / 1000;
-		
+
 		Double nAplicadoUrinario = 27 * 0.006;
-		Double emisionNN2oUrinario = formatearDecimales((nAplicadoUrinario * (1.67 / 100.0)) * 1000.0, CANTIDAD_DECIMALES);
+		Double emisionNN2oUrinario = formatearDecimales((nAplicadoUrinario * (1.67 / 100.0)) * 1000.0,
+				CANTIDAD_DECIMALES);
 		Double emisionN2oDiaUrinario = formatearDecimales(emisionNN2oUrinario / 0.6364, CANTIDAD_DECIMALES);
 		Double emisionN2oAnioUrinario = (emisionN2oDiaUrinario * 365) / 1000;
-		
+
 		Double oxidoNitrosoFactorEmision = formatearDecimales(emisionN2oAnioFecal + emisionN2oAnioUrinario,
 				CANTIDAD_DECIMALES);
 		Double oxidoNitrosoDiaGramo = formatearDecimales((oxidoNitrosoFactorEmision * 1000) / 365, CANTIDAD_DECIMALES);
@@ -730,8 +744,7 @@ public class ModeloService implements IModeloService {
 		Double tauri = formatearDecimales(0.0906 * (Math.pow(entradaDto.getPesoCorporal(), 0.75)) + 0.3515 * fcm,
 				CANTIDAD_DECIMALES);
 
-		Double milkTrueProtein = formatearDecimales(entradaDto.getProteinaCruda() * MILK_TRUE_PROTEIN_CONSTANT,
-				CANTIDAD_DECIMALES);
+		Double milkTrueProtein = formatearDecimales(entradaDto.getProteinaCruda() * 0.93, CANTIDAD_DECIMALES);
 		Double milkEneg = 0.0;
 		if (entradaDto.getLactosa() == 0) {
 			milkEneg = formatearDecimales(
@@ -756,11 +769,6 @@ public class ModeloService implements IModeloService {
 						* (1 - (0.212 + (parto * 0.136)) * Math.exp(-0.053 * entradaDto.getDiasLeche())),
 				CANTIDAD_DECIMALES);
 
-		System.out.println("WOL > " + wol);
-		System.out.println("MILK PROD > " + milkProd);
-		System.out.println("FCM > " + fcm);
-		System.out.println(totalDmFeed1);
-		System.out.println(totalDmFeed2);
 		consumoMateriaSecaDto.setNrc(totalDmFeed);
 		consumoMateriaSecaDto.setTuari(tauri);
 		consumoMateriaSecaDto.setNrcEfectosAnimales(nrcEfectoAnimal);
@@ -823,18 +831,18 @@ public class ModeloService implements IModeloService {
 				} else {
 					cmsConcentrado = cmsConcentrado + dietaDto.getCantidad();
 				}
-				fdnExcel = formatearDecimales(dietaDto.getCantidad()*fdn/100, CANTIDAD_DECIMALES);
-				fdaExcel = formatearDecimales(dietaDto.getCantidad()*fda/100, CANTIDAD_DECIMALES);
-				
-				almidonExcel = formatearDecimales(dietaDto.getCantidad()*almidon/100, CANTIDAD_DECIMALES);
-				
+				fdnExcel = formatearDecimales(dietaDto.getCantidad() * fdn / 100, CANTIDAD_DECIMALES);
+				fdaExcel = formatearDecimales(dietaDto.getCantidad() * fda / 100, CANTIDAD_DECIMALES);
+
+				almidonExcel = formatearDecimales(dietaDto.getCantidad() * almidon / 100, CANTIDAD_DECIMALES);
+
 				sumaFdn = sumaFdn + fdnExcel;
 				sumaFda = sumaFda + fdaExcel;
 				sumaAlmidon = sumaAlmidon + almidonExcel;
 				cpIntake = formatearDecimales(dietaDto.getCantidad() * pbBiblioteca / 100 * 1000, CANTIDAD_DECIMALES);
-				
+
 				sumaPb = sumaPb + cpIntake;
-				porcentajeRdp = 0.0; 
+				porcentajeRdp = 0.0;
 				if (new Double(0).equals(dietaDto.getCantidad())) {
 					porcentajeRdp = 0.0;
 				}
@@ -869,7 +877,6 @@ public class ModeloService implements IModeloService {
 		Double sumaPndrDivido = sumaPndr / 1000;
 		Double pndrBalance = formatearDecimales(((sumaPndrDivido / cmsActual * 100) / pb) * 100, CANTIDAD_DECIMALES);
 
-		System.out.println(cmsActual);
 		balanceDto.setPorcentajeForraje(porcentajeForraje);
 		balanceDto.setPorcentajeConcentrado(porcentajeConcentrado);
 		balanceDto.setFdn(fdn);
