@@ -247,13 +247,30 @@ public class ModeloService implements IModeloService {
 		Double effmpNpg = (83.4 - (0.114 * eqsbw)) / 100;
 
 		Double growht = 0.0;
-		Double fecalPhosphorous = 0.0;
+		Double fecalPhosphorous = formatearDecimales(1 * cmsActual, CANTIDAD_DECIMALES);
+		Double growthPhosphorous = 0.0;
+		Double kGrowth = 0.0;
+		Double mgGrowth = 0.0;
 		if (entradaDto.getNumeroParto() <= 2) {
 			growht = formatearDecimales(re, CANTIDAD_DECIMALES);
-			fecalPhosphorous = formatearDecimales(0.8 * cmsActual, CANTIDAD_DECIMALES);
+			if ("Jersey".equals(entradaDto.getRaza())) {
+				growthPhosphorous = formatearDecimales(
+						(1.2 + (4.635 * Math.pow(MW_JERSEY, 0.22)) * Math.pow(entradaDto.getPesoCorporal(), -0.22))
+								* (entradaDto.getGananciaPeso()),
+						CANTIDAD_DECIMALES);
+			} else {
+				growthPhosphorous = formatearDecimales(
+						(1.2 + (4.635 * Math.pow(MW_HOLSTEIN, 0.22)) * Math.pow(entradaDto.getPesoCorporal(), -0.22))
+								* (entradaDto.getGananciaPeso()),
+						CANTIDAD_DECIMALES);
+			}
+			kGrowth = formatearDecimales(1.6 * entradaDto.getGananciaPeso(), CANTIDAD_DECIMALES);
+			mgGrowth = formatearDecimales(0.45 * entradaDto.getGananciaPeso(), CANTIDAD_DECIMALES);
 		} else {
 			growht = 0.0;
-			fecalPhosphorous = formatearDecimales(1 * cmsActual, CANTIDAD_DECIMALES);
+			growthPhosphorous = 0.0;
+			kGrowth = 0.0;
+			mgGrowth = 0.0;
 		}
 
 		Double milkEneg = 0.0;
@@ -336,33 +353,16 @@ public class ModeloService implements IModeloService {
 
 		Double urinaryPhosphorous = formatearDecimales(0.002 * entradaDto.getPesoCorporal(), CANTIDAD_DECIMALES);
 
-		Double growthPhosphorous = 0.0;
-		if ("Jersey".equals(entradaDto.getRaza())) {
-			growthPhosphorous = formatearDecimales(
-					(1.2 + (4.635 * Math.pow(MW_JERSEY, 0.22)) * Math.pow(entradaDto.getPesoCorporal(), -0.22))
-							* (entradaDto.getGananciaPeso()),
-					CANTIDAD_DECIMALES);
-		} else {
-			growthPhosphorous = formatearDecimales(
-					(1.2 + (4.635 * Math.pow(MW_HOLSTEIN, 0.22)) * Math.pow(entradaDto.getPesoCorporal(), -0.22))
-							* (entradaDto.getGananciaPeso()),
-					CANTIDAD_DECIMALES);
-		}
-
 		Double pRequirement = formatearDecimales(
 				fecalPhosphorous + urinaryPhosphorous + pregnancyPhosphorous + lactationPhosphorous + growthPhosphorous,
 				CANTIDAD_DECIMALES);
 
 		Double mgFecal = formatearDecimales(0.003 * entradaDto.getPesoCorporal(), CANTIDAD_DECIMALES);
 
-		Double mgGrowth = formatearDecimales(0.45 * entradaDto.getGananciaPeso(), CANTIDAD_DECIMALES);
-
 		Double mgRequirement = formatearDecimales(mgFecal + 0.0 + mgPregnancy + mgLactation + mgGrowth,
 				CANTIDAD_DECIMALES);
 
 		Double kUrinary = formatearDecimales(0.038 * entradaDto.getPesoCorporal(), CANTIDAD_DECIMALES);
-
-		Double kGrowth = formatearDecimales(1.6 * entradaDto.getGananciaPeso(), CANTIDAD_DECIMALES);
 
 		Double kRequirement = formatearDecimales(kFecal + kUrinary + kPregnancy + kLactation + kGrowth,
 				CANTIDAD_DECIMALES);
