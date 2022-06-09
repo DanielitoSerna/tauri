@@ -25,6 +25,7 @@ public class ModeloService implements IModeloService {
 	private static final Double KP_OF_WET_CONCENTRATE_CONSTANT = 2.904, KP_OF_WET_CONCENTRATE_CONSTANT_DOS = 1.375;
 	private static final Double KP_OF_WET_CONCENTRATE_CONSTANT_TRES = 0.02;
 	private static final Double CONSTANT_SCURF_REQUIREMENT = 0.3, CONSTANT_SCURF_REQUIREMENT_DOS = 0.6;
+	private static final String VACA_LACTANTE = "Vaca lactante";
 
 	@Autowired
 	private BibliotecaRepository bibliotecaRepository;
@@ -219,8 +220,7 @@ public class ModeloService implements IModeloService {
 
 		Double mpBact = mcpAdjust * 0.64;
 
-		Double metabolicFecalProteinReq = formatearDecimales(
-				(cmsActual * 1000 * 0.03 - (0.5 * ((mpBact / 0.8) - mpBact))), CANTIDAD_DECIMALES);
+		Double metabolicFecalProteinReq = formatearDecimales((cmsActual * 1000 * 0.03), CANTIDAD_DECIMALES);
 		Double mpEndoungeosRequirement = formatearDecimales((11.8 * cmsActual * 0.4) / 0.67, CANTIDAD_DECIMALES);
 
 		Double mpMaint = formatearDecimales(
@@ -294,10 +294,15 @@ public class ModeloService implements IModeloService {
 		Double mgLactation = 0.0;
 		Double lactationCalcium = 0.0;
 
+		if (VACA_LACTANTE.equals(entradaDto.getTipoAnimal())) {
+			kFecal = formatearDecimales(6.1 * cmsActual, CANTIDAD_DECIMALES);
+		} else {
+			kFecal = formatearDecimales(2.6 * cmsActual, CANTIDAD_DECIMALES);
+		}
+
 		if (entradaDto.getDiasLeche() > 0) {
 			fecalCalcium = formatearDecimales(3.1 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
 			lactationPhosphorous = formatearDecimales(0.9 * milkProd, CANTIDAD_DECIMALES);
-			kFecal = formatearDecimales(6.1 * cmsActual, CANTIDAD_DECIMALES);
 			kLactation = formatearDecimales(1.5 * milkProd, CANTIDAD_DECIMALES);
 			mgLactation = formatearDecimales(milkProd * 0.15, CANTIDAD_DECIMALES);
 			if ("Jersey".equals(entradaDto.getRaza())) {
@@ -308,7 +313,6 @@ public class ModeloService implements IModeloService {
 		} else {
 			if (entradaDto.getDiasLeche() == 0) {
 				fecalCalcium = formatearDecimales(1.54 * (entradaDto.getPesoCorporal() / 100), CANTIDAD_DECIMALES);
-				kFecal = formatearDecimales(2.6 * cmsActual, CANTIDAD_DECIMALES);
 				kLactation = 0.0;
 				lactationPhosphorous = 0.0;
 				mgLactation = 0.0;
