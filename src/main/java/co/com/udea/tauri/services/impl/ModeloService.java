@@ -304,21 +304,22 @@ public class ModeloService implements IModeloService {
 		Double growthCalcium = 0.0;
 		Double mpGrowth = 0.0;
 		if (entradaDto.getGananciaPeso() > 0) {
-			if ("Jersey".equals(entradaDto.getRaza())) {
-				growthCalcium = formatearDecimales(
-						(9.83 * (Math.pow(MW_JERSEY, 0.22)) * (Math.pow(entradaDto.getPesoCorporal(), -0.22)))
-								* (entradaDto.getGananciaPeso()),
-						CANTIDAD_DECIMALES);
-			} else {
-				growthCalcium = formatearDecimales(
-						(9.83 * (Math.pow(MW_HOLSTEIN, 0.22)) * (Math.pow(entradaDto.getPesoCorporal(), -0.22)))
-								* (entradaDto.getGananciaPeso()),
-						CANTIDAD_DECIMALES);
-			}
 			if (entradaDto.getNumeroParto() <= 2) {
 				mpGrowth = formatearDecimales(npg / effmpNpg, CANTIDAD_DECIMALES);
+				if ("Jersey".equals(entradaDto.getRaza())) {
+					growthCalcium = formatearDecimales(
+							(9.83 * (Math.pow(MW_JERSEY, 0.22)) * (Math.pow(entradaDto.getPesoCorporal(), -0.22)))
+									* (entradaDto.getGananciaPeso()),
+							CANTIDAD_DECIMALES);
+				} else {
+					growthCalcium = formatearDecimales(
+							(9.83 * (Math.pow(MW_HOLSTEIN, 0.22)) * (Math.pow(entradaDto.getPesoCorporal(), -0.22)))
+									* (entradaDto.getGananciaPeso()),
+							CANTIDAD_DECIMALES);
+				}
 			} else {
 				mpGrowth = 0.0;
+				growthCalcium = 0.0;
 			}
 		} else {
 			if (entradaDto.getGananciaPeso() == 0) {
